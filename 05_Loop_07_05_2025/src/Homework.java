@@ -1,10 +1,10 @@
 public class Homework {
     public static void main(String[] args) {
-        int res = countDigits(123); // 3
+        int res = countDigits1(-123); // 3
         System.out.println("Count digits first = " + res);
-        res = countDigits(8); // 1
+        res = countDigits1(8); // 1
         System.out.println("Count digits second = " + res);
-        res = countDigits(0); // 1
+        res = countDigits1(0); // 1
         System.out.println("Count digits third = " + res);
         System.out.println("=============================");
         luckyNumber(173854); // 1+3+5 != 7+8+4 --> unlucky
@@ -55,6 +55,15 @@ public class Homework {
             counter++;
             num /= 10;
         }
+        return counter;
+    }
+
+    private static int countDigits1(int num){
+        int counter = 0;
+        do {
+            counter++;
+            num /= 10;
+        } while ( num != 0);
         return counter;
     }
 }
