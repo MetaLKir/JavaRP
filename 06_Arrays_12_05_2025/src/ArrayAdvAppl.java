@@ -14,25 +14,36 @@ public class ArrayAdvAppl {
         System.out.println("Index = " + res);
     }
 
-    private static int search(int[] arr, int i) {
-        // TODO
-        return 0;
-        // if no value, return -1;
+    private static int search(int[] arr, int num) {
+        int index = -1;     // if no value, return -1;
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == num){
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 
     private static int max(int[] arr) {
-        // TODO
-        return 0;
+        int max = arr[0];
+        for (int i = 1; i < arr.length; i++){
+            if (max < arr[i])
+                max = arr[i];
+        }
+        return max;
     }
 
     private static double average(int[] arr) {
-        // TODO
-        return 0;
+        return (double) sumArray(arr) / arr.length;
     }
 
     private static int sumArray(int[] arr) {
-        // TODO
-        return 0;
+        int sum = 0;
+        for (int i: arr) {
+            sum += i;
+        }
+        return sum;
     }
 
     private static void fillArray(int[] arr, int from, int to) {
