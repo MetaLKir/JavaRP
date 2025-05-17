@@ -2,7 +2,7 @@ public class ArrayAdvAppl {
     public static void main(String[] args) {
         int[] arr = new int[10];
         printArray(arr);
-        fillArray(arr, 10, 99);
+        fillArray(arr, 10, 100);
         printArray(arr);
         int res = sumArray(arr);
         System.out.println("Sum = " + res);
@@ -12,6 +12,16 @@ public class ArrayAdvAppl {
         System.out.println("Max " + res);
         res = search(arr, arr[7]);
         System.out.println("Index = " + res);
+        reverseArray(arr);
+        printArray(arr);
+    }
+
+    private static void reverseArray(int[] arr) {
+        for (int i = 0, j = arr.length - 1, temp; i < j; i++, j--) {
+            temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
     }
 
     private static int search(int[] arr, int num) {
