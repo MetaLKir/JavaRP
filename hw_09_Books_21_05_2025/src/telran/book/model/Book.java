@@ -19,7 +19,7 @@ public class Book {
     public Book(String title, String author, long isbn) {
         this.title = title;
         this.author = author;
-        this.isbn = isbn;
+        setIsbn(isbn);
     }
 
     public Book(String title, String author, int year, long isbn) {
