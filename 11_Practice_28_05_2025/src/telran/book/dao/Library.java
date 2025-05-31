@@ -18,6 +18,10 @@ public class Library {
         return null;
     }
 
+    public int getSize() {
+        return size;
+    }
+
     public Book updateBook(String author, String newAuthor) {
         for (int i = 0; i < size; i++) {
             if(books[i].getAuthor().equals(author)) {
@@ -49,13 +53,37 @@ public class Library {
         return null;
     }
 
+    public int findIndexOfBookByTitle(String title) {
+        for (int i = 0; i < size; i++) {
+            if(books[i].getTitle().equals(title)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void printBooks() {
+        System.out.println("ALL BOOKS INFO" + "=".repeat(100));
         for (int i = 0; i < size; i++) {
             System.out.println(books[i]);
         }
     }
 
-    public int getSize() {
-        return size;
+    public void printBooks(int fromYear) {
+        System.out.println("BOOKS INFO FROM YEAR " + fromYear + "=".repeat(100));
+        for (int i = 0; i < size; i++) {
+            if (books[i].getYearOfPublishing() >= fromYear){
+                System.out.println(books[i]);
+            }
+        }
+    }
+
+    public void printBooks(int fromYear, int toYear) {
+        System.out.println("BOOKS INFO FROM YEAR " + fromYear + " TO YEAR " + toYear + "=".repeat(100));
+        for (int i = 0; i < size; i++) {
+            if (books[i].getYearOfPublishing() >= fromYear && books[i].getYearOfPublishing() <= toYear){
+                System.out.println(books[i]);
+            }
+        }
     }
 }

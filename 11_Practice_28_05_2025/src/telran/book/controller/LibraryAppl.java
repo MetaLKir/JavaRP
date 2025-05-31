@@ -33,5 +33,8 @@ public class LibraryAppl {
         System.out.println(library.updateBook("unknown", "John Doe"));
         System.out.println("=".repeat(100));
         library.printBooks();
+        library.printBooks(1990);
+        library.printBooks(1990, 1997);
+        System.out.println("Index: " + library.findIndexOfBookByTitle("Book4"));
     }
 }
