@@ -4,8 +4,6 @@ public class User {
     private String email;
     private String password;
 
-    //private final static char[] restrictedSymbols = {' ', '+', '-', '=', '/', '|'}
-
     public User(String email, String password) {
         setEmail(email);
         this.password = password;
