@@ -15,13 +15,11 @@ class UserTest {
         user = new User(email, password);
     }
 
-
     @Test
     void testCorrectEmail() {
         user.setEmail("peter@yahoo.com");
         assertEquals("peter@yahoo.com", user.getEmail());
     }
-
 
     @Test
     void testWithoutAt(){
@@ -29,20 +27,17 @@ class UserTest {
         assertEquals(email, user.getEmail());
     }
 
-
     @Test
     void testManyAt(){
         user.setEmail("peter@ya@hoo.com");
         assertEquals(email, user.getEmail());
     }
 
-
     @Test
     void testDotAfterAt(){
         user.setEmail("peter@yahoocom");
         assertEquals(email, user.getEmail());
     }
-
 
     @Test
     void testLastDot(){
@@ -51,7 +46,6 @@ class UserTest {
         user.setEmail("peter@yahoo.co.m");
         assertEquals(email, user.getEmail());
     }
-
 
     @Test
     void testIncorrectSymbol(){

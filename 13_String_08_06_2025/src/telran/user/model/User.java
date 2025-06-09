@@ -4,6 +4,8 @@ public class User {
     private String email;
     private String password;
 
+    //private final static char[] restrictedSymbols = {' ', '+', '-', '=', '/', '|'}
+
     public User(String email, String password) {
         setEmail(email);
         this.password = password;
@@ -22,17 +24,26 @@ public class User {
 
     }
 
-    /* TODO:
-        1. is @ exists and only one
-        2. dot after @
-        3. after last dot minimum 2 symbols
-        4. allowed symbols: alphabetic, digits, underscore, -, dot, comma, @
-     */
     private boolean validateEmail(String email) {
         int indexAt = email.indexOf('@');
-        if (indexAt == -1) {
+        int indexLastDot = email.lastIndexOf('.');
+        int minSymbolsAfterDot = 2;
+        // is @ exists
+        if (indexAt == -1)
             return false;
-        }
+        // is @ only one
+        if(indexAt != email.lastIndexOf('@'))
+            return false;
+        // dot after @
+        if (indexLastDot < indexAt)
+            return false;
+        // after last dot minimum 2 symbols
+        int symbolsAfterDot = email.length() - 1 - indexLastDot;
+        if (symbolsAfterDot < minSymbolsAfterDot)
+            return false;
+        // allowed symbols: alphabetic, digits, underscore, -, dot, comma, @
+        if(!email.matches("[a-zA-Z0-9@,._-]{1,}"))
+            return false;
 
         return true;
     }
