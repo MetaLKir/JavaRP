@@ -6,7 +6,7 @@ public class User {
 
     public User(String email, String password) {
         setEmail(email);
-        this.password = password;
+        setPassword(password);
     }
 
     public String getEmail() {
@@ -51,7 +51,49 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        if(validatePassword(password))
+            this.password = password;
+        else
+            System.out.println("Password not valid");
+    }
+
+    /*
+        1. minimum 8 symbols
+        2. min one digit
+        3. min one special symbol(!%@*&)
+        4. min one symbol uppercase
+        5. min one symbol lowercase
+     */
+    private boolean validatePassword(String password) {
+        boolean[] res = new boolean[5];
+        int len = password.length();
+        if(len >= 8) {
+            res[0] = true;
+        }
+        for (int i = 0; i < len; i++) {
+            char c = password.charAt(i);
+            if(Character.isDigit(c)) {
+                res[1] = true;
+            }
+            if(isSpecSymbols(c)) {
+                res[2] = true;
+            }
+            if(Character.isUpperCase(c)) {
+                res[3] = true;
+            }
+            if(Character.isLowerCase(c)) {
+                res[4] = true;
+            }
+            if(res[0] && res[1] && res[2] && res[3] && res[4]){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isSpecSymbols(char c) {
+        return "!%@*&".indexOf(c) >= 0;
     }
 
     @Override

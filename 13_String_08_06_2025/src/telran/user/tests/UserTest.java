@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserTest {
     User user;
     String email = "peter@gmail.com";
-    String password = "1234";
+    String password = "123456Ab!";
 
     @BeforeEach
     void setUp(){
@@ -51,5 +51,43 @@ class UserTest {
     void testIncorrectSymbol(){
         user.setEmail("pet!er@yahoo.com");
         assertEquals(email, user.getEmail());
+    }
+
+    @Test
+    void testCorrectPassword() {
+        user.setPassword("qwertY%8");
+        assertEquals("qwertY%8", user.getPassword());
+    }
+
+    @Test
+    void testPasswordLength() {
+        user.setPassword("qertY%8");
+        assertEquals(password, user.getPassword());
+    }
+
+    @Test
+    void testPasswordDigits() {
+        user.setPassword("qwertY%E");
+        assertEquals(password, user.getPassword());
+    }
+
+    @Test
+    void testPasswordSpecSymbols() {
+        user.setPassword("qwertY_8");
+        assertEquals(password, user.getPassword());
+        user.setPassword("qwertYw8");
+        assertEquals(password, user.getPassword());
+    }
+
+    @Test
+    void testPasswordLowerCase() {
+        user.setPassword("QWERTY%8");
+        assertEquals(password, user.getPassword());
+    }
+
+    @Test
+    void testPasswordUpperCase() {
+        user.setPassword("qwerty%8");
+        assertEquals(password, user.getPassword());
     }
 }
