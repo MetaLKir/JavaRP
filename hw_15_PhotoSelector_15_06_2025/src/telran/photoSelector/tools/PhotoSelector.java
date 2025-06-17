@@ -1,21 +1,46 @@
 package telran.photoSelector.tools;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class PhotoSelector {
-    // StringBuilder ??? (methods: append and toString().split);
-    // TODO*: Pattern (compile, matcher) and Matcher (reset, find)
+
     public static String[] selectPictures(String[] pictures, String regex){
-        int size = 0;
-        for (int i = 0; i < pictures.length; i++) {
-            if(pictures[i].matches(regex)){
-                size++;
-            }
+        StringBuilder sb = new StringBuilder();
+        for(String picture : pictures){
+            if (picture.matches(regex))
+                sb.append(picture);
         }
-        String[] res = new String[size];
-        for (int j = 0, k = 0; j < res.length; k++) {
-            if (pictures[k].matches(regex)){
-                res[j++] = pictures[k];
-            }
+        return sb.toString().split("(?<=.jpg|.png|.gif)");
+    }
+
+
+    public static String[] selectPictures2(String[] pictures, String regex){
+        StringBuilder sb = new StringBuilder();
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher;
+
+        for(String picture : pictures) {
+            matcher = pattern.matcher(picture);
+            if (matcher.find())
+                sb.append(picture);
         }
-        return res;
+
+        return sb.toString().split("(?<=.jpg|.png|.gif)");
+    }
+
+
+    public static String[] selectPictures3(String[] pictures, String regex){
+        List<String> filteredPictures = new ArrayList<>();
+
+        for(String picture : pictures) {
+            if(picture.matches(regex))
+                filteredPictures.add(picture);
+        }
+
+        return filteredPictures.toArray(new String[0]);
     }
 }
