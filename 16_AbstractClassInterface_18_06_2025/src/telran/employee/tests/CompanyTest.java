@@ -38,6 +38,9 @@ class CompanyTest {
         assertFalse(company.addEmployee(firm[3]));
         assertEquals(4, company.size());
 
+        assertFalse(company.addEmployee(null));
+        assertEquals(4, company.size());
+
         Employee employee = new SalesManager(6666, "John", "Doe", 66, 66_666, 0.6);
         assertTrue(company.addEmployee(employee));
         assertEquals(5, company.size());
@@ -116,5 +119,19 @@ class CompanyTest {
     @Test
     void totalSales() {
         assertEquals(600_000, company.totalSales());
+    }
+
+    @Test
+    void findEmployeesHoursGreaterThan() {
+        Employee[] actual = company.findEmployeesHoursGreaterThan(100);
+        Employee[] expected = {firm[0], firm[1], firm[2]};
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    void findEmployeesSalaryBetween() {
+        Employee[] actual = company.findEmployeesSalaryBetween(5000, 10000);
+        Employee[] expected = {firm[1], firm[2]};
+        assertArrayEquals(expected, actual);
     }
 }

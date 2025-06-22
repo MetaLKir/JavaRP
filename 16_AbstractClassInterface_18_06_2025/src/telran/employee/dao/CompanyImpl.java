@@ -3,6 +3,8 @@ package telran.employee.dao;
 import telran.employee.model.Employee;
 import telran.employee.model.SalesManager;
 
+import java.util.function.Predicate;
+
 public class CompanyImpl implements Company {
     Employee[] employees;
     int size; // already existed employees
@@ -13,12 +15,9 @@ public class CompanyImpl implements Company {
 
     @Override
     public boolean addEmployee(Employee employee) {
-        if (size == employees.length)
+        if (size == employees.length || employee == null
+                || findEmployee(employee.getId()) != null) {
             return false;
-
-        for (int i = 0; i < size; i++) {
-            if (employees[i] == employee)
-                return false;
         }
 
         employees[size] = employee;
@@ -60,12 +59,7 @@ public class CompanyImpl implements Company {
 
     @Override
     public double averageSalary() {
-        double salaryAverage = 0;
-        for (int i = 0; i < size; i++) {
-            salaryAverage += employees[i].calcSalary();
-        }
-        salaryAverage /= size;
-        return salaryAverage;
+        return totalSalary() / size;
     }
 
     @Override
@@ -88,5 +82,43 @@ public class CompanyImpl implements Company {
                 salesSum += seller.getSalesValue();
         }
         return salesSum;
+    }
+
+    @Override
+    public Employee[] findEmployeesHoursGreaterThan(int hours) {
+        Predicate<Employee> predicate = new Predicate<Employee>() {
+            @Override
+            public boolean test(Employee employee) {
+                return employee.getHours() >= hours;
+            }
+        };
+        return findEmployeesByPredicate(predicate);
+    }
+
+    @Override
+    public Employee[] findEmployeesSalaryBetween(double min, double max) {
+        Predicate<Employee> predicate = new Predicate<Employee>() {
+            @Override
+            public boolean test(Employee employee) {
+                return employee.calcSalary() >= min && employee.calcSalary() < max;
+            }
+        };
+        return findEmployeesByPredicate(predicate);
+    }
+
+    private Employee[] findEmployeesByPredicate(Predicate<Employee> preidcate){
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            if(preidcate.test(employees[i])){
+                count++;
+            }
+        }
+        Employee[] res = new Employee[count];
+        for (int i = 0, j = 0; i < size; i++) {
+            if(preidcate.test(employees[i])){
+                res[j++] = employees[i];
+            }
+        }
+        return res;
     }
 }
