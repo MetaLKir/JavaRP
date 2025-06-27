@@ -55,6 +55,8 @@ class GarageTest {
 
         assertEquals(cars[2], garage.removeCar(cars[2].getRegNumber()));
         assertEquals(3, garage.getGarageSize());
+        assertNull(garage.removeCar(cars[2].getRegNumber()));
+        assertEquals(3, garage.getGarageSize());
     }
 
     @Test

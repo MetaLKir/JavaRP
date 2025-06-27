@@ -55,4 +55,15 @@ public class Car {
     public int hashCode() {
         return Objects.hashCode(regNumber);
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "regNumber='" + regNumber + '\'' +
+                ", model='" + model + '\'' +
+                ", company='" + company + '\'' +
+                ", engine=" + engine +
+                ", color='" + color + '\'' +
+                '}';
+    }
 }

@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.function.Predicate;
 
 public class GarageImpl implements Garage {
-    private Car[] cars;
+    private final Car[] cars;
     private int size;
 
     public GarageImpl(int capacity) {
-        cars = new Car[capacity];
+        this.cars = new Car[capacity];
     }
 
     @Override
@@ -62,38 +62,21 @@ public class GarageImpl implements Garage {
 
     @Override
     public Car[] findCarsByCompany(String company) {
-        Predicate<Car> predicate = new Predicate<Car>() {
-            @Override
-            public boolean test(Car car) {
-                return car.getCompany().equals(company);
-            }
-        };
-        return findCarsByPredicate(predicate);
+        return findCarsByPredicate(c -> c.getCompany().equals(company));
     }
 
     @Override
     public Car[] findCarsByEngine(double min, double max) {
-        Predicate<Car> predicate = new Predicate<Car>() {
-            @Override
-            public boolean test(Car car) {
-                return car.getEngine() >= min && car.getEngine() <= max;
-            }
-        };
-        return findCarsByPredicate(predicate);
+        return findCarsByPredicate(c -> c.getEngine() >= min && c.getEngine() <= max);
     }
 
     @Override
     public Car[] findCarsByColor(String color) {
-        Predicate<Car> predicate = new Predicate<Car>() {
-            @Override
-            public boolean test(Car car) {
-                return color.equals(car.getColor());
-            }
-        };
-        return findCarsByPredicate(predicate);
+        return findCarsByPredicate(c -> c.getColor().equals(color));
     }
 
-    private Car[] findCarsByPredicate(Predicate<Car> predicate){
+    @Override
+    public Car[] findCarsByPredicate(Predicate<Car> predicate){
         ArrayList<Car> carsToReturn = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
