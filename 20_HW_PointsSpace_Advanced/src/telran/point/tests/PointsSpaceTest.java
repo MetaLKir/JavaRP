@@ -36,5 +36,4 @@ class PointsSpaceTest {
 		ps.addPoint(p_2);
 		assertArrayEquals(expected01_02, ps.getPoints());
 	}
-
 }
