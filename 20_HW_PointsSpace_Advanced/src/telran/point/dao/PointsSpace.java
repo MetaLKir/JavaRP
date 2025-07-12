@@ -11,13 +11,13 @@ public class PointsSpace {
 
 	public PointsSpace(Point relPoint, Point[] points) {
 		this.relPoint = relPoint;
-		this.points = points;
+		this.points = Arrays.copyOf(points, points.length);
         comp = (p1, p2) -> {
             double vecLen1 = vectorLength(relPoint, p1);
             double vecLen2 = vectorLength(relPoint, p2);
-            return (int) (vecLen1 - vecLen2);
+            return Double.compare(vecLen1, vecLen2);
         };
-		Arrays.sort(points, comp);
+		Arrays.sort(this.points, comp);
     }
 
 	public Point[] getPoints() {
