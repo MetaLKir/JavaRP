@@ -29,7 +29,7 @@ public class InterviewTestAppl {
         for (int i = 0; i < arr.length; i++) {
             arr[i][i] = i * i;
             for (int j = i + 1; j < arr[i].length; j++) {
-                arr[i][j] = arr[j][i] = i * j; // here's the problem. If 1 action, it works faster
+                arr[i][j] = arr[j][i] = i * j;
             }
         }
     }
