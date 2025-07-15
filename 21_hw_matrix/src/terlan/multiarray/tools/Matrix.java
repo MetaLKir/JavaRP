@@ -2,7 +2,8 @@ package terlan.multiarray.tools;
 
 public class Matrix {
 
-    public static int sum(int[][] matrix){
+    // O(n^2)
+    public static int sum(int[][] matrix) {
         int sum = 0;
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
@@ -12,6 +13,7 @@ public class Matrix {
         return sum;
     }
 
+    // O(n^2)
     public static int[][] transp(int[][] matrix) {
         int[][] res = new int[matrix[0].length][matrix.length];
 
