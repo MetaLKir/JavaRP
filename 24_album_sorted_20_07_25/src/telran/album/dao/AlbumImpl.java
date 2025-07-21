@@ -3,6 +3,7 @@ package telran.album.dao;
 import telran.album.model.Photo;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class AlbumImpl implements Album {
@@ -34,7 +35,7 @@ public class AlbumImpl implements Album {
     public boolean removePhoto(int photoId, int albumId) {
         Photo pattern = new Photo(albumId, photoId, null, null, null);
         for (int i = 0; i < size; i++) {
-            if (photos[i].equals(pattern)){
+            if (photos[i].equals(pattern)) {
                 System.arraycopy(photos, i + 1, photos, i, size - i - 1);
                 photos[--size] = null;
                 return true;
@@ -65,14 +66,30 @@ public class AlbumImpl implements Album {
 
     @Override
     public Photo[] getAllPhotoFromAlbum(int albumId) {
-        return new Photo[0];
-        // TODO
+        ArrayList<Photo> result = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            if (photos[i].getAlbumId() == albumId) {
+                result.add(photos[i]);
+            }
+        }
+
+        return result.toArray(new Photo[0]);
     }
 
     @Override
     public Photo[] getPhotoBetweenDate(LocalDate dateFrom, LocalDate dateTo) {
-        return new Photo[0];
-        // TODO
+        ArrayList<Photo> result = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            boolean isAfterBotBorderInclusive = photos[i].getDate().toLocalDate().compareTo(dateFrom) >= 0;
+            boolean isBeforeTopBorderInclusive = photos[i].getDate().toLocalDate().compareTo(dateTo) <= 0;
+            if (isAfterBotBorderInclusive && isBeforeTopBorderInclusive) {
+                result.add(photos[i]);
+            }
+        }
+
+        return result.toArray(new Photo[0]);
     }
 
     @Override
