@@ -7,30 +7,32 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Predicate;
 
-public class ForumImpl implements Forum{
+public class ForumImpl implements Forum {
     Post[] posts;
     int size;
+    private Comparator<Post> cmp = (p1, p2) -> p1.getAuthor().compareTo(p2.getAuthor());
 
-    private Comparator<Post> cmp = (p1,p2)->Arrays.compare(p1.getAuthor().toCharArray(),p2.getAuthor().toCharArray());
 
     public ForumImpl(int capacity) {
         posts = new Post[capacity];
     }
 
+    public ForumImpl() {
+        posts = new Post[10];
+    }
+
     @Override
     public boolean addPost(Post post) {
-
         if (size == posts.length || post == null
                 || getPostById(post.getPostId()) != null) {
             return false;
         }
-        int index = Arrays.binarySearch(posts, 0, size, post,cmp);
+        int index = Arrays.binarySearch(posts, 0, size, post, cmp);
         index = index < 0 ? -index - 1 : index;
         System.arraycopy(posts, index, posts, index + 1, size - index);
         posts[index] = post;
         size++;
         return true;
-
     }
 
     @Override
@@ -44,19 +46,16 @@ public class ForumImpl implements Forum{
                 return res;
             }
         }
-
         return null;
     }
 
     @Override
     public boolean updatePost(int postId, String content) {
-
         Post post = getPostById(postId);
-        if(post != null){
+        if (post != null) {
             post.setContent(content);
             return true;
         }
-
         return false;
     }
 
@@ -66,15 +65,13 @@ public class ForumImpl implements Forum{
             if (posts[i].getPostId() == postId)
                 return posts[i];
         }
-
-        //if(postId >= 0 && postId < size)return posts[postId];
         return null;
     }
 
     @Override
     public Post[] getPostsByAuthor(String author) {
         Post pattern = new Post(0, null, author, null);
-        int from = Arrays.binarySearch(posts, pattern,cmp);
+        int from = Arrays.binarySearch(posts, pattern, cmp);
         while (from >= 0) {
             from = Arrays.binarySearch(posts, 0, from, pattern, cmp);
         }
@@ -92,16 +89,29 @@ public class ForumImpl implements Forum{
     public Post[] getPostsByAuthor(String author, LocalDate dateFrom, LocalDate dateTo) {
         Post[] authorPost = getPostsByAuthor(author);
 
-        return getPostsByPredicate(authorPost,(Post p)-> {return
-                ( p.getDate().compareTo(dateFrom.atStartOfDay())>=0 &&
-                        p.getDate().compareTo(dateFrom.atStartOfDay())<0);});
+        return getPostsByPredicate(authorPost, (Post p) -> {
+            int from = p.getDate().compareTo(dateFrom.atStartOfDay());
+            int to = p.getDate().compareTo(dateTo.atStartOfDay());
+            boolean comp = from >= 0 && to < 0;
+            return comp;
+        });
+    }
+
+    @Override
+    public Post[] getPostsByLikes(int minLikes, int maxLikes) {
+        Predicate<Post> prd = (p) -> {
+            if (minLikes == maxLikes)
+                return minLikes == p.getLikes();
+            return p.getLikes() >= minLikes && p.getLikes() < maxLikes;
+        };
+        return getPostsByPredicate(prd);
     }
 
 
-    private Post[] getPostsByPredicate( Post[] array, Predicate<Post> predicate) {
-        Post[] res = new Post[size];
+    private Post[] getPostsByPredicate(Post[] array, Predicate<Post> predicate) {
+        Post[] res = new Post[array.length];
         int j = 0;
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < array.length; i++) {
             if (predicate.test(array[i])) {
                 res[j++] = array[i];
             }
@@ -109,6 +119,16 @@ public class ForumImpl implements Forum{
         return Arrays.copyOf(res, j);
     }
 
+    private Post[] getPostsByPredicate(Predicate<Post> predicate) {
+        Post[] res = new Post[size];
+        int j = 0;
+        for (int i = 0; i < size; i++) {
+            if (predicate.test(posts[i])) {
+                res[j++] = posts[i];
+            }
+        }
+        return Arrays.copyOf(res, j);
+    }
 
 
     @Override

@@ -51,9 +51,14 @@ public class Post {
         this.date = date;
     }
 
-    public int addLike(){
+    public int addLike() {
         return ++likes;
     }
+
+    public int removeLike() {
+        return --likes;
+    }
+
 
     @Override
     public boolean equals(Object o) {

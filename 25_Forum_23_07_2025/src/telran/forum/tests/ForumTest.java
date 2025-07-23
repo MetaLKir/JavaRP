@@ -20,16 +20,17 @@ class ForumTest {
     Post oneMore1;
     Post oneMore2;
     LocalDateTime now = LocalDateTime.now();
+    Comparator<Post> compById = (p1, p2) -> Integer.compare(p1.getPostId(), p2.getPostId());
 
     @BeforeEach
     void setUp() {
         forum = new ForumImpl(6);
 
-        posts[0] = new Post(1,"1","Vova","Jopa");
-        posts[1] = new Post(2,"2","Petya","Hui");
-        posts[2] = new Post(3,"3","Jora","Pisdez");
-        posts[3] = new Post(4,"4","Jora","Govno");
-        posts[4] = new Post(5,"5","Vova","Goida");
+        posts[0] = new Post(1, "1", "Vova", "Jopa");
+        posts[1] = new Post(2, "2", "Petya", "Hui");
+        posts[2] = new Post(3, "3", "Jora", "Pisdez");
+        posts[3] = new Post(4, "4", "Jora", "Govno");
+        posts[4] = new Post(5, "5", "Vova", "Goida");
 
         oneMore1 = new Post(6, "6", "Goga", "Nigger");
         oneMore2 = new Post(7, "7", "Seroja", "GayHelicopter");
@@ -83,22 +84,22 @@ class ForumTest {
 
     @Test
     void getPostsByAuthor() {
-        Post[] expected = {posts[0], posts[4]}; // TODO: SORT THIS SHIT !!!!
-        Comparator<Post> comp = (p1, p2) -> Integer.compare(p1.getPostId(), p2.getPostId());
-        Arrays.sort(expected, comp);
+        Post[] expected = {posts[0], posts[4]};
+
+        Arrays.sort(expected, compById);
 
         Post[] actual = forum.getPostsByAuthor("Vova");
-        Arrays.sort(actual, comp);
+        Arrays.sort(actual, compById);
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    void getPostsByAuthor_WithDate(){
-        posts[2].setDate(LocalDateTime.of(2000,12,25,5,13));
-        posts[3].setDate(LocalDateTime.of(2007,5,27,9,1));
+    void getPostsByAuthor_WithDate() {
+        posts[2].setDate(LocalDateTime.of(2000, 12, 25, 5, 13));
+        posts[3].setDate(LocalDateTime.of(2007, 5, 27, 9, 1));
 
         Post[] expected = {posts[2]};
-        Post[] actual = forum.getPostsByAuthor("Jora", LocalDate.of(1999,1,1), LocalDate.of(2002, 2,2));
+        Post[] actual = forum.getPostsByAuthor("Jora", LocalDate.of(1999, 1, 1), LocalDate.of(2002, 2, 2));
         assertArrayEquals(expected, actual);
     }
 
@@ -112,5 +113,34 @@ class ForumTest {
 
         forum.removePost(posts[2].getPostId());
         assertEquals(5, forum.size());
+
+        forum.removePost(posts[2].getPostId());
+        assertEquals(5, forum.size());
+    }
+
+    @Test
+    void getPostsByLikes() {
+        for (int i = 420; i > 0; i--) {
+            posts[1].addLike();
+        }
+        for (int i = 69; i > 0; i--) {
+            posts[2].addLike();
+        }
+        for (int i = 13; i > 0; i--) {
+            posts[3].addLike();
+        }
+
+        Post[] expected = {posts[1], posts[2]};
+        Post[] actual = forum.getPostsByLikes(20, 2000);
+        Arrays.sort(expected, compById);
+        Arrays.sort(actual, compById);
+        assertArrayEquals(expected, actual);
+
+
+        expected = new Post[]{posts[0], posts[4]};
+        actual = forum.getPostsByLikes(0, 0);
+        Arrays.sort(expected, compById);
+        Arrays.sort(actual, compById);
+        assertArrayEquals(expected, actual);
     }
 }
