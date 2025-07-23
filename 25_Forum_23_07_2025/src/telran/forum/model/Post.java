@@ -65,4 +65,16 @@ public class Post {
     public int hashCode() {
         return Objects.hashCode(postId);
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "postId=" + postId +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", content='" + content + '\'' +
+                ", date=" + date +
+                ", likes=" + likes +
+                '}';
+    }
 }

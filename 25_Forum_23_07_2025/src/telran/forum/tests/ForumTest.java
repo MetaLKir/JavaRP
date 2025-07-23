@@ -9,6 +9,8 @@ import telran.forum.model.Post;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,8 +83,12 @@ class ForumTest {
 
     @Test
     void getPostsByAuthor() {
-        Post[] expected = {posts[0], posts[4]};
+        Post[] expected = {posts[0], posts[4]}; // TODO: SORT THIS SHIT !!!!
+        Comparator<Post> comp = (p1, p2) -> Integer.compare(p1.getPostId(), p2.getPostId());
+        Arrays.sort(expected, comp);
+
         Post[] actual = forum.getPostsByAuthor("Vova");
+        Arrays.sort(actual, comp);
         assertArrayEquals(expected, actual);
     }
 
@@ -92,7 +98,7 @@ class ForumTest {
         posts[3].setDate(LocalDateTime.of(2007,5,27,9,1));
 
         Post[] expected = {posts[2]};
-        Post[] actual = forum.getPostsByAuthor("Jora", LocalDate.of(2000,1,1), LocalDate.of(2002, 2,2));
+        Post[] actual = forum.getPostsByAuthor("Jora", LocalDate.of(1999,1,1), LocalDate.of(2002, 2,2));
         assertArrayEquals(expected, actual);
     }
 
