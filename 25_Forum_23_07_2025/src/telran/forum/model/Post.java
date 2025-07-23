@@ -1,6 +1,7 @@
 package telran.forum.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Post {
     private int postId;
@@ -52,5 +53,16 @@ public class Post {
 
     public int addLike(){
         return ++likes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Post post)) return false;
+        return postId == post.postId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(postId);
     }
 }
