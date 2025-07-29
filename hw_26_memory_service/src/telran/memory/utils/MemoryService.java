@@ -2,25 +2,19 @@ package telran.memory.utils;
 
 public class MemoryService {
     public static int getMaxAvailableMemory() {
-        // TODO: homework
-        // когда масив упадёт, сохранить предыдущее значение
-        int res = 0;
+        int maxSize = 0;
+        int step = 1_000_000_000;
 
-        for (int i = 0; true; i++) {
+        while (step > 0) {
             try {
-                res = i;
-                int[] arr = new int[i];
-            } catch (RuntimeException e) {
-                return res - 1;
+                int[] arr = new int[maxSize + step];
+                maxSize += step;
+            } catch (OutOfMemoryError e) {
+                step /= 10;
             }
         }
 
-
-        // в цикле создавать массив с размером итератора
-        // поймать когда рухнет
-
-        // Runtime.getRuntime().maxMemory();
-
-
+        System.out.println("maxSize = " + maxSize);
+        return maxSize;
     }
 }

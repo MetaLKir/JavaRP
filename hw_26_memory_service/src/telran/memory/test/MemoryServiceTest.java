@@ -20,6 +20,7 @@ public class MemoryServiceTest {
         } catch (Throwable e) {
             flag = false;
         }
+        arr = null;
         assertTrue(flag);
 
         try {
@@ -29,6 +30,5 @@ public class MemoryServiceTest {
             flag = false;
         }
         assertFalse(flag);
-
     }
 }
