@@ -1,4 +1,7 @@
-package telran.fibonacci.model;
+package telran.fibonacci;
+
+import telran.fibonacci.model.Fibonacci;
+import telran.fibonacci.model.FibonacciWithCustomIterator;
 
 public class FibonacciAppl {
     public static void main(String[] args) {
