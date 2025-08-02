@@ -1,23 +1,16 @@
 package telran.fibonacci.model;
 
-// 0, 1, 1, 2, 3, 5, 8, 13, 21...
-// element is sum of 2 previous elements
-
 import java.util.Iterator;
 
-// Fibonacci fibonacci = new Fibonacci(8); -> 8 elements in sequence
-// 1, 1, 2, 3, 5, 8, 13, 21
-// start from 1 = 0 + 1;
-// we always know first 2 elements to calc sequence: 0 and 1
-// TODO: need to generate numbers through Iterator
-
-// print all numbers and reduce sum
-// if 8 elements, print all 8 elements, print sum 54
 public class Fibonacci implements Iterable<Integer> {
     private int quantity;
+    private int[] sequence;
+    private final int firstNumber = 0;
+    private final int secondNumber = 1;
 
     public Fibonacci(int quantity) {
         this.quantity = quantity;
+        generateSequence();
     }
 
     public int getQuantity() {
@@ -26,12 +19,38 @@ public class Fibonacci implements Iterable<Integer> {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+        generateSequence();
     }
 
+    private void generateSequence() {
+        this.sequence = new int[quantity];
+        if (quantity == 0) return;
+
+        sequence[0] = secondNumber;
+        if (quantity == 1) return;
+
+        sequence[1] = secondNumber + firstNumber;
+        if (quantity == 2) return;
+
+        for (int i = 2; i < quantity; i++) {
+            sequence[i] = sequence[i - 1] + sequence[i - 2];
+        }
+    }
 
     @Override
     public Iterator<Integer> iterator() {
-        // TODO
-        return null;
+        return new Iterator<Integer>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < quantity;
+            }
+
+            @Override
+            public Integer next() {
+                return sequence[i++];
+            }
+        };
     }
 }
