@@ -43,24 +43,36 @@ public class CitizensImpl implements Citizens {
         if (person == null) return false;
         int index = Collections.binarySearch(idList, person);
         if (index >= 0) return false;
-        index = -index -1;
+        index = -index - 1;
         idList.add(index, person);
 
-        //TODO
+        index = Collections.binarySearch(lastNameList, person, lastNameComparator);
+        if (index <= 0) index = -index - 1;
+        lastNameList.add(index, person);
+
+        index = Collections.binarySearch(ageList, person, ageComparator);
+        if (index <= 0) index = -index - 1;
+        ageList.add(index, person);
 
         return true;
     }
 
     @Override
     public boolean remove(int id) {
+        Person personToRemove = find(id);
+        if (personToRemove == null) return false;
 
-        //TODO
-        return false;
+        idList.remove(personToRemove);
+        lastNameList.remove(personToRemove);
+        ageList.remove(personToRemove);
+        return true;
     }
 
     @Override
     public Person find(int id) {
-        return null;
+        Person pattern = new Person(id, null, null, null);
+        int index = Collections.binarySearch(idList, pattern);
+        return index >= 0 ? idList.get(index) : null;
     }
 
     @Override
@@ -90,6 +102,6 @@ public class CitizensImpl implements Citizens {
 
     @Override
     public int size() {
-        return 0;
+        return idList.size();
     }
 }
