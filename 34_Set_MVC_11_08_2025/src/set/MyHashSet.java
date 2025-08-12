@@ -83,9 +83,8 @@ public class MyHashSet<E> implements ISet<E> {
 			if (hashSet[i] != null) {
 				for (E e : hashSet[i]) {
 					int index = getIndex(e);
-					if (newHashSet[index] == null) {
+					if (newHashSet[index] == null)
 						newHashSet[index] = new LinkedList<>();
-					}
 					newHashSet[index].add(e);
 				}
 			}
@@ -95,20 +94,27 @@ public class MyHashSet<E> implements ISet<E> {
 
 	@Override
 	public boolean contains(E element) {
-		// TODO Auto-generated method stub
-		return false;
+		int index = getIndex(element);
+		if (hashSet[index] == null)
+			return false;
+
+		return hashSet[index].contains(element);
 	}
 
 	@Override
 	public boolean remove(E element) {
-		// TODO Auto-generated method stub
-		return false;
+		int index = getIndex(element);
+		if (hashSet[index] == null)
+			return false;
+		boolean res = hashSet[index].remove(element);
+		if (res)
+			size--;
+		return res;
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return size;
 	}
 
 }
