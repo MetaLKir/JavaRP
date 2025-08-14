@@ -28,23 +28,16 @@ public class AnagramAppl {
         Map<Character, Integer> mainWordMap = stringToMap(mainWord);
         Map<Character, Integer> subWordMap = stringToMap(subWord);
 
-        System.out.println("Main word: " + mainWord + " | Sub word: " + subWord);
-        System.out.println(mainWordMap);
-        System.out.println(subWordMap);
-
-
         boolean res = true;
         for (Map.Entry<Character, Integer> entry : subWordMap.entrySet()) {
             Character key = entry.getKey();
             Integer value = entry.getValue();
-
             if (!mainWordMap.containsKey(key) || value > mainWordMap.get(key)){
                 res = false;
                 break;
             }
         }
-        System.out.println("Main word contain subword: " + res);
-        System.out.println("=".repeat(50));
+        soutAnagramStats(mainWord, subWord, mainWordMap,subWordMap, res);
         return res;
     }
 
@@ -56,4 +49,11 @@ public class AnagramAppl {
         return res;
     }
 
+    private static void soutAnagramStats(String mainWord, String subWord, Map<Character, Integer> mainWordMap, Map<Character, Integer> subWordMap, boolean res){
+        System.out.println("Main word: " + mainWord + " | Sub word: " + subWord);
+        System.out.println(mainWordMap);
+        System.out.println(subWordMap);
+        System.out.println("Main word contain subword: " + res);
+        System.out.println("=".repeat(50));
+    }
 }

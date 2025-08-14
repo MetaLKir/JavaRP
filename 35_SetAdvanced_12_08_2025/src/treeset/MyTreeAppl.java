@@ -24,5 +24,17 @@ public class MyTreeAppl {
 
         tree.remove(4);
         tree.traverse();
+
+        // =========== HOMEWORK =============
+        // method .subTree
+        System.out.println("=".repeat(20) + " Homework subTree of myTree " + "=".repeat(20));
+        MyTree subTree = tree.subSet(6, 25);
+        tree.traverse();
+        subTree.traverse();
+        // method .trim
+        System.out.println("=".repeat(20) + " Homework trim myTree " + "=".repeat(20));
+        tree.traverse();
+        tree.trim(11, 20);
+        tree.traverse();
 	}
 }

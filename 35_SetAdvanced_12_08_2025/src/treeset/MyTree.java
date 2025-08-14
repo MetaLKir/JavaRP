@@ -82,4 +82,67 @@ public class MyTree {
 
         return root;
     }
+
+    public MyTree subSet(int from, int to){
+        /* TODO:
+            1. Идём по дереву от корня. Если значение ноды:
+            - за верхней границей, то идём в левую ветку
+                (где значение меньше и могут попасть в диапазон; вправо не идём, там значения ещё выше).
+            - до нижней границы, то идём в правую ветку
+                (где значения больше и могут попасть в диапазон; влево не идём, там значения ещё ниже).
+            - если значение в пределах границы, то мы добавляем его в новое дерево-результат.
+                затем идём в левую ветку и в правую ветку.
+            2. рекурсивнный вызов на каждом переходе в ветку. Возвращаем новое дерево.
+         */
+        return subSetRecursive(new MyTree(), root, from, to);
+    }
+
+    private MyTree subSetRecursive(MyTree tree, Node node, int from, int to){
+        if (node == null) return tree;
+
+        if (node.value >= to){
+            subSetRecursive(tree, node.left, from, to);
+        }
+        else if (node.value < from){
+            subSetRecursive(tree, node.right, from, to);
+        }
+        else {
+            tree.add(node.value);
+            subSetRecursive(tree, node.right, from, to);
+            subSetRecursive(tree, node.left, from, to);
+        }
+        return tree;
+    }
+
+    public void trim(int start, int end){
+        /* TODO:
+            1. Передаём ноду (начиная с корня) и границы. Если значение ноды:
+                - внутри границ, то идём в левую и в правую ветки.
+                - если нода меньше границ, то удаляем левую ветку (там значения ещё меньше границы),
+                    правую привязываем на её место и идём по ней.
+                - если нода больше границ, то удаляем правую ветку (там значения ещё больше границы),
+                    левую ветку привязываем но её место и идём по ней.
+                - если нода внутри границ, то идём по правой и левой ветке.
+             2. Если нода null, то и возвращаем null;
+         */
+        root = trimRecursive(root, start, end);
+    }
+
+    private Node trimRecursive(Node node, int start, int end) {
+        if (node == null) return null;
+
+        if (node.value < start) {
+            node.left = null;
+            node = trimRecursive(node.right, start, end);
+        }
+        else if (node.value >= end) {
+            node.right = null;
+            node = trimRecursive(node.left, start, end);
+        }
+        else {
+            node.left = trimRecursive(node.left, start, end);
+            node.right = trimRecursive(node.right, start, end);
+        }
+        return node;
+    }
 }
