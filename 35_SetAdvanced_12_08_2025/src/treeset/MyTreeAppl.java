@@ -16,9 +16,13 @@ public class MyTreeAppl {
 		tree.add(20);
 		tree.add(7);
 		tree.add(0);
+        tree.add(17);
 		tree.traverse();
 		
 		System.out.println(tree.contains(4));
 		System.out.println(tree.contains(3));
+
+        tree.remove(4);
+        tree.traverse();
 	}
 }
