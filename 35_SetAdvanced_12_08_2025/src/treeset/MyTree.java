@@ -83,7 +83,7 @@ public class MyTree {
         return root;
     }
 
-    public MyTree subSet(int from, int to){
+    public MyTree subSet(int from, int to) {
         /* TODO:
             1. Идём по дереву от корня. Если значение ноды:
             - за верхней границей, то идём в левую ветку
@@ -97,16 +97,14 @@ public class MyTree {
         return subSetRecursive(new MyTree(), root, from, to);
     }
 
-    private MyTree subSetRecursive(MyTree tree, Node node, int from, int to){
+    private MyTree subSetRecursive(MyTree tree, Node node, int from, int to) {
         if (node == null) return tree;
 
-        if (node.value >= to){
+        if (node.value >= to) {
             subSetRecursive(tree, node.left, from, to);
-        }
-        else if (node.value < from){
+        } else if (node.value < from) {
             subSetRecursive(tree, node.right, from, to);
-        }
-        else {
+        } else {
             tree.add(node.value);
             subSetRecursive(tree, node.right, from, to);
             subSetRecursive(tree, node.left, from, to);
@@ -114,7 +112,28 @@ public class MyTree {
         return tree;
     }
 
-    public void trim(int start, int end){
+    public MyTree subSet2(int from, int to) {
+        // prepod's version
+        MyTree res = new MyTree();
+        subSetRecursive2(res, root, from, to);
+        return res;
+    }
+
+    private void subSetRecursive2(MyTree tree, Node node, int from, int to) {
+        // prepod's version
+        if (node == null) return;
+        if (node.value > from)
+            subSetRecursive2(tree, node.left, from, to);
+        else if (node.value == from) {
+        } else {
+        }
+        if (node.value >= from && root.value < to) tree.add(node.value);
+        if (node.value < to) subSetRecursive2(tree, node.right, from, to);
+        else {
+        }
+    }
+
+    public void trim(int start, int end) {
         /* TODO:
             1. Передаём ноду (начиная с корня) и границы. Если значение ноды:
                 - внутри границ, то идём в левую и в правую ветки.
@@ -134,15 +153,30 @@ public class MyTree {
         if (node.value < start) {
             node.left = null;
             node = trimRecursive(node.right, start, end);
-        }
-        else if (node.value >= end) {
+        } else if (node.value >= end) {
             node.right = null;
             node = trimRecursive(node.left, start, end);
-        }
-        else {
+        } else {
             node.left = trimRecursive(node.left, start, end);
             node.right = trimRecursive(node.right, start, end);
         }
+        return node;
+    }
+
+    public void trim2(int start, int end) {
+        // prepod's solution
+        this.root = trimRecursive2(this.root, start, end);
+    }
+
+    private Node trimRecursive2(Node node, int start, int end) {
+        // prepod's solution
+        if (node == null) return null;
+        if (node.value < start)
+            return trimRecursive2(node.right, start, end);
+        if (node.value > end)
+            return trimRecursive2(node.left, start, end);
+        node.left = trimRecursive2(node.left, start, end);
+        node.right = trimRecursive2(node.right, start, end);
         return node;
     }
 }
