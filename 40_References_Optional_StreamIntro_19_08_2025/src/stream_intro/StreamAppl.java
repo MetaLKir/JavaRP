@@ -3,6 +3,7 @@ package stream_intro;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -47,5 +48,23 @@ public class StreamAppl {
 
         Stream.generate(() -> "Hello Karmiel").limit(3).forEach(System.out::println);
         Stream.generate(() -> "Hello Karmiel!!!").limit(3).forEach(t -> System.out.println(t));
+
+        // boolean generation with stream
+        System.out.println("=".repeat(50));
+        Random r = new Random();
+        Stream.generate(r::nextBoolean).limit(5).forEach(System.out::println);
+
+        System.out.println("=".repeat(50));
+        for (int i = 0; i < 5; i++) {
+            System.out.println(r.nextBoolean());
+        }
+
+        System.out.println("=".repeat(50));
+        IntStream.range(0, 10).forEach(System.out::println);
+
+        System.out.println("=".repeat(50));
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i);
+        }
     }
 }
