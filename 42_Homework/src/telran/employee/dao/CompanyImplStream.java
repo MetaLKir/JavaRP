@@ -3,75 +3,62 @@ package telran.employee.dao;
 import telran.employee.model.Employee;
 import telran.employee.model.SalesManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class CompanyImplStream implements Company {
-    Stream<Employee> employees;
-    int capacity;// max telran.employee quantity
+    Map<Integer, Employee> employees;
+    int capacity;// max employee quantity
 
     public CompanyImplStream(int capacity) {
         this.capacity = capacity;
-        employees = Stream.empty();
+        employees = new LinkedHashMap<>();
     }
 
     @Override
     public boolean addEmployee(Employee employee) {
-        if (employee == null || employees.count() == capacity || findEmployee(employee.getId()) != null) {
+        if (employee == null || employees.size() == capacity) {
             return false;
         }
-        Stream<Employee> toAdd = Stream.of(employee);
-        employees = Stream.concat(employees, toAdd);
-        return true;
+        return employees.putIfAbsent(employee.getId(), employee) == null;
     }
 
     @Override
     public Employee removeEmployee(int id) {
-        Employee victim = findEmployee(id);
-        employees.filter(e->e.equals(victim));
-        return victim;
+        return employees.remove(id);
     }
 
     @Override
     public Employee findEmployee(int id) {
-        Employee[] res = new Employee[1];
-        employees.peek(e-> {
-            if(e.getId() == id)
-                res[0] = e;
-        });
-        return res[0];
+        return employees.get(id);
     }
 
     @Override
     public double totalSalary() {
-        double[] sum = new double[1];
-        employees.peek(e-> sum[0] += e.calcSalary());
-        return sum[0];
+        return employees.values().stream().
+                mapToDouble(Employee::calcSalary).
+                sum();
     }
 
     @Override
     public int quantity() {
-        return (int) employees.count();
+        return employees.size();
     }
 
     @Override
     public void printEmployees() {
-//        for (Employee e : employees.values()) {
-//            System.out.println(e);
-//        }
+        employees.values().stream().
+                forEach(System.out::println);
     }
 
     @Override
     public double totalSales() {
-        double sum = 0;
-//        for (Employee e : employees.values()) {
-//            if (e instanceof SalesManager sm) {
-//                sum += sm.getSalesValue();
-//            }
-//        }
-        return sum;
+        return employees.values().stream().
+                filter(e -> e instanceof SalesManager).
+                map(e -> (SalesManager) e).
+                mapToDouble(SalesManager::getSalesValue).
+                sum();
     }
 
     @Override
@@ -85,11 +72,8 @@ public class CompanyImplStream implements Company {
     }
 
     private Employee[] findEmployeesByPredicate(Predicate<Employee> predicate) {
-        List<Employee> res = new ArrayList<>();
-//        for (Employee e : employees.values()) {
-//            if (predicate.test(e))
-//                res.add(e);
-//        }
-        return res.toArray(new Employee[0]);
+        return employees.values().stream().
+                filter(predicate).toArray(Employee[]::new);
+
     }
 }

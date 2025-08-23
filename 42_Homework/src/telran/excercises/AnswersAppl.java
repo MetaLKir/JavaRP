@@ -19,6 +19,7 @@ public class AnswersAppl {
         List<String> resultList = names.stream().
                 filter(Objects::nonNull).
                 map(String::trim).
+                filter(s -> !s.isBlank()).
                 map(s -> s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()).
                 toList();
         System.out.println("Out list: " + resultList);
@@ -54,7 +55,8 @@ public class AnswersAppl {
         System.out.println("=".repeat(20) + "EXERCISE_3" + "=".repeat(20));
         List<String> titles = List.of("java", "Zebra", "apple");
         titles.stream().
-                sorted(Comparator.comparing(String::toLowerCase)).
+                map(String::toLowerCase).
+                sorted(String::compareTo).
                 forEach(System.out::println);
 
 
@@ -117,7 +119,7 @@ public class AnswersAppl {
     private static boolean isPrime(int number) {
         if (number <= 1) return false;
 
-        for (int i = 2; i < number; i++) {
+        for (int i = 2; i <= Math.sqrt(number); i++) {
             if (number % i == 0) return false;
         }
         return true;

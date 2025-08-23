@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import telran.employee.dao.Company;
 import telran.employee.dao.CompanyImplMap;
+import telran.employee.dao.CompanyImplStream;
 import telran.employee.model.Employee;
 import telran.employee.model.Manager;
 import telran.employee.model.SalesManager;
@@ -17,7 +18,7 @@ class CompanyTest {
 
     @BeforeEach
     void setUp() {
-        company = new CompanyImplMap(5);
+        company = new CompanyImplStream(5); // Change here implementation to Map, List, Stream to test various versions.
         firm = new Employee[4];
         firm[0] = new Manager(1000, "John", "Smith", 180, 20_000, 20); //23.600
         firm[1] = new WageEmployee(2000, "Mary", "Smith", 180, 50); //9000
