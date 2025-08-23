@@ -3,12 +3,15 @@ package telran.employee.dao;
 import telran.employee.model.Employee;
 import telran.employee.model.SalesManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public class CompanyImplMap implements Company {
     Map<Integer, Employee> employees;
-    int capacity;// max employee quantity
+    int capacity;// max telran.employee quantity
 
     public CompanyImplMap(int capacity) {
         this.capacity = capacity;
@@ -21,7 +24,6 @@ public class CompanyImplMap implements Company {
         if (employee == null || employees.size() == capacity) {
             return false;
         }
-
         return employees.putIfAbsent(employee.getId(), employee) == null;
     }
 
