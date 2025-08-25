@@ -48,15 +48,15 @@ public class CompanyImplStream implements Company {
 
     @Override
     public void printEmployees() {
-        employees.values().stream().
+        employees.values().
                 forEach(System.out::println);
     }
 
     @Override
     public double totalSales() {
         return employees.values().stream().
-                filter(e -> e instanceof SalesManager).
-                map(e -> (SalesManager) e).
+                filter(SalesManager.class::isInstance).
+                map(SalesManager.class::cast).
                 mapToDouble(SalesManager::getSalesValue).
                 sum();
     }

@@ -18,7 +18,7 @@ public class AnswersAppl {
         System.out.println("In list: " + names);
         List<String> resultList = names.stream().
                 filter(Objects::nonNull).
-                map(String::trim).
+                map(String::strip).
                 filter(s -> !s.isBlank()).
                 map(s -> s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase()).
                 toList();
@@ -55,10 +55,8 @@ public class AnswersAppl {
         System.out.println("=".repeat(20) + "EXERCISE_3" + "=".repeat(20));
         List<String> titles = List.of("java", "Zebra", "apple");
         titles.stream().
-                map(String::toLowerCase).
-                sorted(String::compareTo).
+                sorted(String.CASE_INSENSITIVE_ORDER).
                 forEach(System.out::println);
-
 
         /* ======== EXERCISE 4 ========
         4) Группировка слов по длине
@@ -110,7 +108,7 @@ public class AnswersAppl {
          */
         System.out.println("=".repeat(20) + "EXERCISE_6" + "=".repeat(20));
         IntStream.
-                iterate(1, x -> ++x).
+                range(1, 1_000).
                 filter(AnswersAppl::isPrime).
                 limit(10).
                 forEach(System.out::println);
@@ -118,8 +116,10 @@ public class AnswersAppl {
 
     private static boolean isPrime(int number) {
         if (number <= 1) return false;
+        if (number == 2) return true;
+        if (number % 2 == 0) return false;
 
-        for (int i = 2; i <= Math.sqrt(number); i++) {
+        for (int i = 3; i <= Math.sqrt(number); i += 2) {
             if (number % i == 0) return false;
         }
         return true;
