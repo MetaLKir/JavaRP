@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CollectAppl {
@@ -34,7 +35,23 @@ public class CollectAppl {
                 collect(Collectors.toMap(Movie::getTitle, Movie::getRating, (r1, r2) -> r1, TreeMap::new));
         // 1st argument is key, 2nd is value, 3rd is what to do if the same key,
         // 4th is type of map (may omit this argument)
-        System.out.println(map1);
+        System.out.println("Map 1: " + map1);
+
+        Map<String, Double> map3 = Arrays.stream(movies).
+                collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                Movie::getTitle,
+                                Function.identity(), // m -> m
+                                (m1, m2) -> m1.getYear() <= m2.getYear() ? m1 : m2,
+                                TreeMap::new), // tm
+                        tm -> tm.entrySet().stream().collect(Collectors.toMap(
+                                Map.Entry::getKey, e -> e.getValue().getRating(),
+                                (a, b) -> a,
+                                TreeMap::new))
+                ));
+
+
+        System.out.println("Map 3: " + map3);
 
     }
 }
