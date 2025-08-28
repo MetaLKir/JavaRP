@@ -1,0 +1,84 @@
+package com.telran.cars.dto;
+
+import com.telran.cars.dto.enums.State;
+
+import java.util.Objects;
+
+public class Car {
+    private String regNumber;
+    private String color;
+    private State state = State.EXCELLENT;
+    private String modelName;
+    private boolean inUse;
+    private boolean flRemoved;
+
+
+    public Car() {
+    }
+
+    public Car(String regNumber, String color, String modelName) {
+        this.regNumber = regNumber;
+        this.color = color;
+        this.modelName = modelName;
+    }
+
+    public String getRegNumber() {
+        return regNumber;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    public boolean isFlRemoved() {
+        return flRemoved;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public void setInUse(boolean inUse) {
+        this.inUse = inUse;
+    }
+
+    public void setFlRemoved(boolean flRemoved) {
+        this.flRemoved = flRemoved;
+    }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "regNumber='" + getRegNumber() + '\'' +
+                ", color='" + getColor() + '\'' +
+                ", state=" + getState() +
+                ", modelName='" + getModelName() + '\'' +
+                ", inUse=" + isInUse() +
+                ", flRemoved=" + isFlRemoved() +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Car car = (Car) o;
+        return Objects.equals(regNumber, car.regNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(regNumber);
+    }
+}

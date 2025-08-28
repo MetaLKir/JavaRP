@@ -23,12 +23,18 @@ public class BullsAndCowsGame {
                 || guess.length() != 4
                 || !guess.chars().allMatch(Character::isDigit))
             throw new IllegalArgumentException("Need 4 digits!");
-        if(hasRepeat(guess))
+        if (hasRepeat(guess))
             throw new IllegalArgumentException("Digits must be unique");
-        if(guess.charAt(0) == '0')
+        if (guess.charAt(0) == '0')
             throw new IllegalArgumentException("First digit shouldn't be zero");
 
-        return null;
+        int bulls = 0, cows = 0;
+        for (int i = 0; i < 4; i++) {
+            char temp = guess.charAt(i);
+            if (temp == secretNum.charAt(i)) bulls++;
+            else if (secretNum.indexOf(temp) >= 0) cows++;
+        }
+        return new int[]{bulls, cows};
     }
 
     private boolean hasRepeat(String guess) {
