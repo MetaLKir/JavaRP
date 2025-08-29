@@ -11,7 +11,7 @@ public class BullsAndCowsGame {
 
     public BullsAndCowsGame() {
         this.secretNum = generateSecretNum();
-        System.out.println(secretNum);
+        //System.out.println(secretNum);
     }
 
     public String getSecretNum() {
