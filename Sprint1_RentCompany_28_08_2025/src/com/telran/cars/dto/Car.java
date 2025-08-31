@@ -2,9 +2,10 @@ package com.telran.cars.dto;
 
 import com.telran.cars.dto.enums.State;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Car {
+public class Car implements Serializable {
     private String regNumber;
     private String color;
     private State state = State.EXCELLENT;

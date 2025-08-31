@@ -1,7 +1,9 @@
 package bulls_and_cows;
 
 import java.io.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class BullsAndCowsAppl {
     public static void main(String[] args) {
@@ -9,6 +11,8 @@ public class BullsAndCowsAppl {
         int round = 1;
         int[] result;
         String endStats;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime sessionStart;
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
              BufferedWriter writer = new BufferedWriter(new FileWriter("BullsAndCowsLog.txt", true));
@@ -18,15 +22,17 @@ public class BullsAndCowsAppl {
             System.out.println("Before the game starts, enter you nickname: ");
             String userName = reader.readLine();
             System.out.printf("The game begins. Good luck %s\n", userName);
-            writer.write("Session: " + LocalDate.now() + " | Player: " + userName);
+
+            sessionStart = LocalDateTime.now();
+            writer.write("Session: " + sessionStart.format(formatter) + " | Player: " + userName);
             writer.newLine();
 
             while (true) {
                 System.out.println("|=== Enter your guess number ===|");
                 String userNumber = reader.readLine();
 
-                if (userNumber.trim().equalsIgnoreCase("exit")) {
-                    endStats = "Game finished with an EXIT on " + round + " round.";
+                if (userNumber == null || userNumber.trim().equalsIgnoreCase("exit")) {
+                    endStats = "Game finished with an EXIT on " + round + " round";
                     break;
                 }
                 try {
@@ -42,6 +48,8 @@ public class BullsAndCowsAppl {
                     round++;
                 } catch (IllegalArgumentException e) { System.out.println(e.getMessage()); }
             }
+            long sessionTime = ChronoUnit.SECONDS.between(sessionStart, LocalDateTime.now());
+            endStats += ". Session time (sec): " + sessionTime;
             printAndLogMessage(endStats, writer);
             printAndLogMessage("=".repeat(50), writer);
 
