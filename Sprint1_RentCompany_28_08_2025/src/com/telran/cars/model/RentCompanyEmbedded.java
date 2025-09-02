@@ -177,11 +177,18 @@ public class RentCompanyEmbedded extends AbstractRentCompany implements Persista
     @Override
     public List<RemovedCarData> removeModel(String modelName) {
         List<Car> carsModel = modelCars.getOrDefault(modelName, new ArrayList<>());
-        return carsModel.stream().
+        List<Car> toRemove = carsModel.stream().
                 filter(c -> !c.isFlRemoved()).
-                map(c -> removeCar(c.getRegNumber())).
                 filter(Objects::nonNull).
                 toList();
+        return toRemove.stream().map(c -> removeCar(c.getRegNumber())).toList();
+        // code from lesson not working;
+        // probably because of iteration and changing collection at the same time;
+//        return carsModel.stream().
+//                filter(c -> !c.isFlRemoved()).
+//                map(c -> removeCar(c.getRegNumber())).
+//                filter(Objects::nonNull).
+//                toList();
     }
 
     @Override

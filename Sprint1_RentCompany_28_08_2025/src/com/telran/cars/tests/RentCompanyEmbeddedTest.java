@@ -119,7 +119,7 @@ class RentCompanyEmbeddedTest {
     }
 
     @Test
-    void RentCar_NoCar() {
+    void rentCar_NoCar() {
         assertEquals(OK, company.addModel(model));
 //        assertEquals(OK, company.addCar(car));
         assertEquals(OK, company.addDriver(driver));
@@ -128,7 +128,7 @@ class RentCompanyEmbeddedTest {
     }
 
     @Test
-    void RentCar_NoDriver() {
+    void rentCar_NoDriver() {
         assertEquals(OK, company.addModel(model));
         assertEquals(OK, company.addCar(car));
 //        assertEquals(OK, company.addDriver(driver));
@@ -137,7 +137,7 @@ class RentCompanyEmbeddedTest {
     }
 
     @Test
-    void RentCar_flRemove_InUse() {
+    void rentCar_flRemove_InUse() {
         assertEquals(OK, company.addModel(model));
         assertEquals(OK, company.addCar(car));
         assertEquals(OK, company.addDriver(driver));
@@ -198,7 +198,7 @@ class RentCompanyEmbeddedTest {
     }
 
     @Test
-    void CarsByModel() {
+    void carsByModel() {
         assertEquals(OK, company.addModel(model));
         assertEquals(OK, company.addCar(car));
         assertEquals(OK, company.addDriver(driver));
@@ -224,9 +224,9 @@ class RentCompanyEmbeddedTest {
         res = company.getCarsByModel(MODEL_NAME + 11);
         assertTrue(res.isEmpty());
     }
-
+    // removeCar TEST ======================================================
     @Test
-    void RemoveCarsInUse() {
+    void removeCarsInUse() {
         assertEquals(OK, company.addModel(model));
         assertEquals(OK, company.addCar(car));
         assertEquals(OK, company.addDriver(driver));
@@ -243,12 +243,94 @@ class RentCompanyEmbeddedTest {
     }
 
     @Test
-    void RemoveCarsNotInUse() {
+    void removeCarsNotInUse() {
         assertEquals(OK, company.addModel(model));
         assertEquals(OK, company.addCar(car));
         assertEquals(OK, company.addDriver(driver));
 
         RemovedCarData nC = new RemovedCarData(car, new ArrayList<>());
         assertEquals(nC, company.removeCar(REG_NUMBER));
+    }
+
+    // returnCar TEST ====================================================================
+    @Test
+    void returnCar_wrongCar() {
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+
+        Car car1 = new Car(REG_NUMBER + 1, COLOR + "R", MODEL_NAME);
+        RemovedCarData expected = new RemovedCarData(null, null);
+        RemovedCarData actual = company.returnCar(car1.getRegNumber(), LICENSE, RENT_DATE.plusDays(RENT_DAYS), 0, 100);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void returnCar_wrongDriver() {
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+
+        RemovedCarData expected = new RemovedCarData(null, null);
+        RemovedCarData actual = company.returnCar(car.getRegNumber(), LICENSE + 1, RENT_DATE.plusDays(RENT_DAYS), 0, 100);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void returnCar_Positive() {
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+
+        RemovedCarData expected = new RemovedCarData(car, null);
+        RemovedCarData actual = company.returnCar(car.getRegNumber(), LICENSE, RENT_DATE.plusDays(RENT_DAYS), 0, 100);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void returnCar_CarToRemove() { // max damage
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+
+        List<RentRecord> listRentRecordsForExpected = company.getRentRecordAtDate(RENT_DATE, RENT_DATE.plusDays(RENT_DAYS));
+        RemovedCarData expected = new RemovedCarData(car,listRentRecordsForExpected);
+        RemovedCarData actual = company.returnCar(car.getRegNumber(), LICENSE, RENT_DATE.plusDays(RENT_DAYS), 100, 100);
+        assertEquals(expected, actual);
+    }
+    // removeModel TEST ====================================================================
+    @Test
+    void removeModel_CarNeverRented(){
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        RemovedCarData rcd = new RemovedCarData(car, new ArrayList<>());
+        List<RemovedCarData> expected = new ArrayList<>();
+        expected.add(rcd);
+        assertEquals(expected, company.removeModel(MODEL_NAME));
+    }
+
+    @Test
+    void removeModel_carInUse(){
+        company.addModel(model);
+        company.addCar(car);
+        company.addDriver(driver);
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+        RemovedCarData rcd = new RemovedCarData(car, null);
+        List<RemovedCarData> expected = new ArrayList<>();
+        expected.add(rcd);
+        assertEquals(expected, company.removeModel(MODEL_NAME));
+    }
+
+    @Test
+    void removeModel_noCars(){
+        company.addModel(model);
+        company.addDriver(driver);
+        List<RemovedCarData> expected = new ArrayList<>();
+        assertEquals(expected, company.removeModel(MODEL_NAME));
     }
 }
