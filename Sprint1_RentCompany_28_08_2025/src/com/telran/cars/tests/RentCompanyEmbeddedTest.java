@@ -1,9 +1,6 @@
 package com.telran.cars.tests;
 
-import com.telran.cars.dto.Car;
-import com.telran.cars.dto.Driver;
-import com.telran.cars.dto.Model;
-import com.telran.cars.dto.RentRecord;
+import com.telran.cars.dto.*;
 import com.telran.cars.model.IRentCompany;
 import com.telran.cars.model.RentCompanyEmbedded;
 import com.telran.util.Persistable;
@@ -11,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -225,5 +223,32 @@ class RentCompanyEmbeddedTest {
 
         res = company.getCarsByModel(MODEL_NAME + 11);
         assertTrue(res.isEmpty());
+    }
+
+    @Test
+    void RemoveCarsInUse() {
+        assertEquals(OK, company.addModel(model));
+        assertEquals(OK, company.addCar(car));
+        assertEquals(OK, company.addDriver(driver));
+        company.rentCar(REG_NUMBER, LICENSE, RENT_DATE, RENT_DAYS);
+
+        RemovedCarData nC = new RemovedCarData(car, null);
+        assertEquals(nC, company.removeCar(REG_NUMBER));
+
+        assertNull(company.removeCar(REG_NUMBER + 100));
+
+        car.setFlRemoved(true);
+        RemovedCarData nC1 = new RemovedCarData(car, new ArrayList<>());
+        assertNull(company.removeCar(REG_NUMBER));
+    }
+
+    @Test
+    void RemoveCarsNotInUse() {
+        assertEquals(OK, company.addModel(model));
+        assertEquals(OK, company.addCar(car));
+        assertEquals(OK, company.addDriver(driver));
+
+        RemovedCarData nC = new RemovedCarData(car, new ArrayList<>());
+        assertEquals(nC, company.removeCar(REG_NUMBER));
     }
 }

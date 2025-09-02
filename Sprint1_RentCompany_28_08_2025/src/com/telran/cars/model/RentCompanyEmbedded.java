@@ -1,19 +1,21 @@
 package com.telran.cars.model;
 
-import com.telran.cars.dto.Car;
-import com.telran.cars.dto.Driver;
-import com.telran.cars.dto.Model;
-import com.telran.cars.dto.RentRecord;
+import com.telran.cars.dto.*;
 import com.telran.cars.dto.enums.CarsReturnCode;
+import com.telran.cars.dto.enums.State;
 import com.telran.util.Persistable;
 
 import static com.telran.cars.dto.enums.CarsReturnCode.*; // to use enum values directly
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class RentCompanyEmbedded extends AbstractRentCompany implements Persistable {
+    private static final int REMOVE_THRESHOLD = 60;
+    private static final int BAD_THRESHOLD = 30;
+    private static final int GOOD_THRESHOLD = 10;
     // SPRINT 1
     Map<String, Car> cars = new HashMap<>(); // key = regNumber
     Map<Long, Driver> drivers = new HashMap<>(); // key = driver's licenceID
@@ -130,6 +132,112 @@ public class RentCompanyEmbedded extends AbstractRentCompany implements Persista
         return res.stream().
                 flatMap(l -> l.stream()).
                 toList();
+    }
+
+    @Override
+    public RemovedCarData removeCar(String regNumber) {
+        Car car = getCar(regNumber);
+        if (car == null || car.isFlRemoved()) return null;
+        car.setFlRemoved(true);
+        return car.isInUse() ? new RemovedCarData(car, null) : actualCarRemove(car);
+    }
+
+    private RemovedCarData actualCarRemove(Car car) {
+        String regNumber = car.getRegNumber();
+        List<RentRecord> removedRecords = carRecords.get(regNumber);
+        if (removedRecords != null && !removedRecords.isEmpty()) {
+            removeFromDriverRecords(removedRecords);
+            removeFromRecords(removedRecords);
+        }
+        cars.remove(regNumber);
+        carRecords.remove(regNumber);
+        String modelName = car.getModelName();
+        List<Car> list = modelCars.get(modelName);
+        if (list != null)
+            list.removeIf(c -> regNumber.equals(c.getRegNumber()));
+        return new RemovedCarData(car, removedRecords == null ? new ArrayList<>() : removedRecords);
+    }
+
+    private void removeFromRecords(List<RentRecord> removedRecords) {
+        if (removedRecords == null) return;
+        removedRecords.forEach(r -> {
+            List<RentRecord> dayList = records.get(r.getRentDate());
+            if (dayList != null) dayList.remove(r);
+        });
+    }
+
+    private void removeFromDriverRecords(List<RentRecord> removedRecords) {
+        if (removedRecords == null) return;
+        removedRecords.forEach(r -> {
+            List<RentRecord> driverList = driverRecords.get(r.getLicenseId());
+            if (driverList != null) driverList.remove(r);
+        });
+    }
+
+    @Override
+    public List<RemovedCarData> removeModel(String modelName) {
+        List<Car> carsModel = modelCars.getOrDefault(modelName, new ArrayList<>());
+        return carsModel.stream().
+                filter(c -> !c.isFlRemoved()).
+                map(c -> removeCar(c.getRegNumber())).
+                filter(Objects::nonNull).
+                toList();
+    }
+
+    @Override
+    public RemovedCarData returnCar(String regNumber, long licenseId, LocalDate returnDate, int damages, int tankPercent) {
+        RentRecord record = getRentRecord(regNumber, licenseId);
+        if (record == null)
+            return new RemovedCarData(null, null);
+        Car car = getCar(regNumber);
+        updateRecord(record, returnDate, damages, tankPercent);
+        updateCar(car, damages);
+        if (damages > REMOVE_THRESHOLD || car.isFlRemoved()) {
+            car.setFlRemoved(true);
+            RemovedCarData remCarData = actualCarRemove(car);
+            return remCarData != null ? remCarData : new RemovedCarData(car, new ArrayList<>());
+        }
+        return new RemovedCarData(car, null);
+    }
+
+    private void updateRecord(RentRecord record, LocalDate returnDate, int damages, int tankPercent) {
+        // regNumber licenceID rentDate days
+        record.setDamages(damages);
+        record.setTankPercent(tankPercent);
+        record.setReturnDate(returnDate);
+        double cost = computeCost(getRentPricePerDay(record.getRegNumber()), record.getRentDays(), getDaysDelay(record), tankPercent, getTankVolume(record.getRegNumber()));
+        record.setCost(cost);
+    }
+
+    private int getTankVolume(String regNumber) {
+        String modelName = cars.get(regNumber).getModelName();
+        return models.get(modelName).getGasTank();
+    }
+
+    private int getDaysDelay(RentRecord record) {
+        long actualDays = ChronoUnit.DAYS.between(record.getRentDate(), record.getReturnDate());
+        int delta = (int) (actualDays - record.getRentDays());
+        return delta <= 0 ? 0 : delta;
+    }
+
+    private int getRentPricePerDay(String regNumber) {
+        String modelName = cars.get(regNumber).getModelName();
+        return  models.get(modelName).getPriceDay();
+    }
+
+    private void updateCar(Car car, int damages) {
+        car.setInUse(false);
+        if(damages >= BAD_THRESHOLD) car.setState(State.BAD);
+        else if (damages >= GOOD_THRESHOLD) car.setState(State.GOOD);
+        else car.setState(State.EXCELLENT);
+    }
+
+    private RentRecord getRentRecord(String regNumber, long licenseId) {
+        List<RentRecord> list = driverRecords.get(licenseId);
+        if (list == null) return null;
+        return list.stream().
+                filter(r -> r.getRegNumber().equals(regNumber) && r.getReturnDate() == null).
+                findFirst().orElse(null);
     }
 
     @Override
