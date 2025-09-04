@@ -11,6 +11,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RentCompanyEmbedded extends AbstractRentCompany implements Persistable {
     private static final int REMOVE_THRESHOLD = 60;
@@ -127,7 +128,7 @@ public class RentCompanyEmbedded extends AbstractRentCompany implements Persista
     }
 
     @Override
-    public List<RentRecord> getRentRecordAtDate(LocalDate from, LocalDate to) {
+    public List<RentRecord> getRentRecordsAtDate(LocalDate from, LocalDate to) {
         Collection<List<RentRecord>> res = ((TreeMap<LocalDate, List<RentRecord>>) records).subMap(from, to).values();
         return res.stream().
                 flatMap(l -> l.stream()).
@@ -229,12 +230,12 @@ public class RentCompanyEmbedded extends AbstractRentCompany implements Persista
 
     private int getRentPricePerDay(String regNumber) {
         String modelName = cars.get(regNumber).getModelName();
-        return  models.get(modelName).getPriceDay();
+        return models.get(modelName).getPriceDay();
     }
 
     private void updateCar(Car car, int damages) {
         car.setInUse(false);
-        if(damages >= BAD_THRESHOLD) car.setState(State.BAD);
+        if (damages >= BAD_THRESHOLD) car.setState(State.BAD);
         else if (damages >= GOOD_THRESHOLD) car.setState(State.GOOD);
         else car.setState(State.EXCELLENT);
     }
@@ -263,5 +264,66 @@ public class RentCompanyEmbedded extends AbstractRentCompany implements Persista
             System.out.println(fileName + " new object has been created " + e.getMessage());
             return new RentCompanyEmbedded();
         }
+    }
+
+    @Override
+    public List<String> getMostPopularCarModels(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge) {
+        List<RentRecord> recordsFromTo = getRentRecordsAtDate(fromDate, toDate);
+        if (recordsFromTo.isEmpty()) return new ArrayList<>();
+
+        Map<String, Long> mapTemp = recordsFromTo.stream().
+                filter(r -> isProperAge(r, fromAge, toAge)).
+                collect(Collectors.groupingBy(r -> getCar(r.getRegNumber()).getModelName(), Collectors.counting()));
+        if (mapTemp.isEmpty()) return new ArrayList<>();
+        long maxValue = Collections.max(mapTemp.values());
+        List<String> res = new ArrayList<>();
+        mapTemp.forEach((k, v) -> {
+            if (v == maxValue) res.add(k);
+        });
+        return res;
+    }
+
+    private boolean isProperAge(RentRecord r, int fromAge, int toAge) {
+        LocalDate rentDate = r.getRentDate();
+        Driver driver = getDriver(r.getLicenseId());
+        int driverAge = rentDate.getYear() - driver.getBirthYear();
+        return driverAge >= fromAge && driverAge < toAge;
+    }
+
+    @Override
+    public List<String> getMostProfitableCarModels(LocalDate fromDate, LocalDate toDate) {
+        List<RentRecord> recordsFromTo = getRentRecordsAtDate(fromDate, toDate);
+        if (recordsFromTo.isEmpty()) return new ArrayList<>();
+        Map<String, Double> modelCost = recordsFromTo.stream().
+                collect(Collectors.groupingBy(r -> getCar(r.getRegNumber()).getModelName(), Collectors.summingDouble(RentRecord::getCost)));
+        if (modelCost.isEmpty()) return new ArrayList<>();
+        double max = getMaxCost(modelCost);
+        List<String> res = new ArrayList<>();
+        double eps = 0.01; // 100.00 == 100.000005 | max == v
+        modelCost.forEach((k, v) -> {
+            if (Math.abs(max - v) <= eps) res.add(k);
+        });
+        return res;
+    }
+
+    private double getMaxCost(Map<String, Double> modelCost) {
+        return modelCost.values().stream().
+                mapToDouble(x -> x).
+                max().
+                getAsDouble();
+    }
+
+    @Override
+    public List<Driver> getMostActiveDrivers() {
+        long max = 0;
+        for (List<RentRecord> value : driverRecords.values()) {
+            max = value.size() > max ? value.size() : max;
+        }
+        long maxV = max;
+        List<Driver> res = new ArrayList<>();
+        driverRecords.forEach((k, v) -> {
+            if (v.size() == maxV) res.add(getDriver(k));
+        });
+        return res;
     }
 }

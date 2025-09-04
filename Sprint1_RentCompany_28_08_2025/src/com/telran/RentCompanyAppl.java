@@ -73,7 +73,7 @@ public class RentCompanyAppl {
         List<Car> carsOfModel  = restored.getCarsByModel(MODEL_NAME);
         System.out.println("Cars of model: " + carsOfModel);
 
-        List<RentRecord> records = restored.getRentRecordAtDate(RENT_DATE, RENT_DATE.plusDays(RENT_DAYS));
+        List<RentRecord> records = restored.getRentRecordsAtDate(RENT_DATE, RENT_DATE.plusDays(RENT_DAYS));
         System.out.println("records at date: " + records);
 
         List<Car> carsByDriver = restored.getCarsByDriver(LICENSE);
@@ -86,7 +86,7 @@ public class RentCompanyAppl {
         List<Car> carsOfModel_N  = restored.getCarsByModel(MODEL_NAME + 1);
         System.out.println("Cars of model (negative): " + carsOfModel_N);
 
-        List<RentRecord> records_N = restored.getRentRecordAtDate(RENT_DATE.plusDays(RENT_DAYS), RENT_DATE.plusDays(10));
+        List<RentRecord> records_N = restored.getRentRecordsAtDate(RENT_DATE.plusDays(RENT_DAYS), RENT_DATE.plusDays(10));
         System.out.println("records at date (negative): " + records_N);
 
         List<Car> carsByDriver_N = restored.getCarsByDriver(LICENSE + 1000);

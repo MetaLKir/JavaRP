@@ -24,10 +24,14 @@ public interface IRentCompany extends Serializable {
     List<Car> getCarsByDriver(long licenseId);
     List<Driver> getDriversByCar(String regNumber);
     List<Car> getCarsByModel(String modelName);
-    List<RentRecord> getRentRecordAtDate(LocalDate from, LocalDate to);
+    List<RentRecord> getRentRecordsAtDate(LocalDate from, LocalDate to);
     // SPRINT 3
     RemovedCarData removeCar(String regNumber);
     List<RemovedCarData> removeModel(String modelName);
     RemovedCarData returnCar(String regNumber, long licenseId, LocalDate returnDate, int damages, int tankPercent);
+    // SPRINT 4
+    List<String> getMostPopularCarModels(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge);
+    List<String> getMostProfitableCarModels(LocalDate fromDate, LocalDate toDate);
+    List<Driver> getMostActiveDrivers();
 
 }
