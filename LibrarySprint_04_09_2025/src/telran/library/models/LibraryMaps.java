@@ -3,13 +3,17 @@ package telran.library.models;
 import telran.library.entities.Book;
 import telran.library.entities.Reader;
 import telran.library.entities.enums.BooksReturnCode;
+import telran.util.Persistable;
 
 import static telran.library.entities.enums.BooksReturnCode.*;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LibraryMaps extends AbstractLibrary {
+public class LibraryMaps extends AbstractLibrary implements Persistable {
     Map<Long, Book> books = new HashMap<>(); // key isbn
     Map<Integer, Reader> readers = new HashMap<>(); // key readerId
 
@@ -25,12 +29,16 @@ public class LibraryMaps extends AbstractLibrary {
 
     @Override
     public BooksReturnCode addReader(Reader reader) {
-        return null;
+        boolean readerIsAbsent = readers.putIfAbsent(reader.getReaderId(), reader) == null;
+        return readerIsAbsent ? OK : READER_EXISTS;
     }
 
     @Override
     public BooksReturnCode addBookExemplars(long isbn, int amount) {
-        return null;
+        Book book = getBookItem(isbn);
+        if (book == null) return NO_BOOK_ITEM;
+        book.setAmount(book.getAmount() + amount);
+        return OK;
     }
 
     @Override
@@ -41,5 +49,14 @@ public class LibraryMaps extends AbstractLibrary {
     @Override
     public Book getBookItem(long isbn) {
         return books.get(isbn);
+    }
+
+    @Override
+    public void save(String fileName) {
+        try (ObjectOutputStream oOut = new ObjectOutputStream(new FileOutputStream(fileName))) {
+            oOut.writeObject(this);
+        } catch (IOException e) {
+            System.out.println("Error in method save: " + e.getMessage());
+        }
     }
 }

@@ -1,0 +1,96 @@
+ ===== Sprint 1 =====
+package "Sprint 1: 
+  package telran.library.entities {
+    class Book {
+      - long isbn
+      - String title
+      - String author
+      - int amount
+      - int amountInUse
+      - int pickPeriod
+      --
+      + Book()
+      + Book(long isbn, String title, String author, int amount, int pickPeriod)
+      + long getIsbn()
+      + String getTitle()
+      + String getAuthor()
+      + int getAmount()
+      + int getAmountInUse()
+      + int getPickPeriod()
+      + void setAmount(int amount)
+      + void setAmountInUse(int amountInUse)
+      + void setPickPeriod(int pickPeriod)
+      + boolean equals(Object o) : isbn
+      + int hashCode() : isbn
+      + String toString()
+    }
+
+    class Reader {
+      - int readerId
+      - String name
+      - String phone
+      - LocalDate birthData
+      --
+      + Reader()
+      + Reader(int readerId, String name, String phone, LocalDate birthData)
+      + int getReaderId()
+      + String getName()
+      + String getPhone()
+      + LocalDate getBirthData()
+          + void setPhone(String phone)
+      + boolean equals(Object o):readerId
+      + int hashCode():readerId
+      + String toString()
+    }
+
+    // Минимально необходимые коды, используемые в спринте 1
+      OK,
+      BOOK_ITEM_EXISTS,                 // addBookItem: книга с таким ISBN уже есть
+      READER_EXISTS,                    // addReader: читатель с таким id уже есть
+      NO_BOOK_ITEM,                     // addBookExemplars: книги с ISBN нет
+      WRONG_BOOK_PICK_PERIOD            // addBookItem: pickPeriod вне [min,max]
+    }
+  }
+
+  package telran.library.model {
+    abstract class AbstractLibrary {
+      # int minPickPeriod
+      # int maxPickPeriod
+      --
+      + int getMinPickPeriod()
+      + int getMaxPickPeriod()
+      + void setMinPickPeriod(int days)
+      + void setMaxPickPeriod(int days)
+    }
+
+    interface ILibrary {
+      .. Sprint1
+        + BooksReturnCode addBookItem(Book book);
+	+ BooksReturnCode addReader(Reader reader);
+	+ BooksReturnCode addBookExemplars(long isbn, int amount);
+	+ Reader getReader(int reader);
+	+ Book getBookItem(long isbn);
+    }
+interface Persistable {
+      + void save(String fileName)      // сериализует всю реализацию
+      
+    }
+class LibraryMaps extends AbstractLibrary implements ILibrary, Persistable {
+      // --- Хранилища и индексы (приватные) ---
+      - Map<Long, Book> books          // ISBN -> Book
+      - Map<Integer, Reader> readers   // readerId -> Reader
+      - Map<String, List<Book>> authors // author -> книги (для быстрых выборок по автору; наполняется в addBookItem)
+      --
+     // ILibrary
+      + BooksReturnCode addBookItem(Book book)
+      + BooksReturnCode addReader(Reader reader)
+      + BooksReturnCode addBookExemplars(long isbn, int amount)
+      + Reader getReader(int readerId)
+      + Book getBookItem(long isbn)
+      // Persistable
+      + void save(String fileName)
+      // восстановление — статический метод реализации
+      {static} + LibraryMaps restoreFromFile(String fileName)
+    
+    }
+  }
