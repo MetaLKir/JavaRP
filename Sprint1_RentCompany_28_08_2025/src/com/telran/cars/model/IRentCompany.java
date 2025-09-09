@@ -34,4 +34,7 @@ public interface IRentCompany extends Serializable {
     List<String> getMostProfitableCarModels(LocalDate fromDate, LocalDate toDate);
     List<Driver> getMostActiveDrivers();
 
+    // SPRINT 5
+    List<String> getModelNames();
+
 }
