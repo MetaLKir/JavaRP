@@ -33,6 +33,7 @@ public class AddDriverItem extends RentCompanyItem {
 
         Driver driver = new Driver(licenseId, name, birthYear, phone);
         inOut.outputLine(company.addDriver(driver));
+        saveResult();
     }
 
 

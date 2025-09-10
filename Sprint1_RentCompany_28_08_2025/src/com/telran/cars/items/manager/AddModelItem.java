@@ -36,5 +36,6 @@ public class AddModelItem extends RentCompanyItem {
         Model model = new Model(modelName, gasTank, companyName, country, pricePerDay);
 
         inOut.outputLine(company.addModel(model));
+        saveResult();
     }
 }

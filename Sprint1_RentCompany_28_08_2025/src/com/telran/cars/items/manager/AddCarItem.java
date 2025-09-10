@@ -31,5 +31,6 @@ public class AddCarItem extends RentCompanyItem {
         Car car = new Car(regNumber, color, modelName);
 
         inOut.outputLine(company.addCar(car));
+        saveResult();
     }
 }

@@ -1,13 +1,20 @@
 package com.telran.cars.items;
 
 import com.telran.cars.model.IRentCompany;
+import com.telran.util.Persistable;
 import view.InputOutput;
 import view.Item;
+
+import java.time.LocalDate;
 
 public abstract class RentCompanyItem implements Item {
     protected InputOutput inOut;
     protected IRentCompany company;
     protected String fileName;
+
+    protected LocalDate from;
+    protected LocalDate to;
+    protected String format = "yyyy-MM-dd";
 
     public RentCompanyItem(InputOutput inOut, IRentCompany company, String fileName) {
         this.inOut = inOut;
@@ -53,5 +60,25 @@ public abstract class RentCompanyItem implements Item {
             return null;
         }
         return id;
+    }
+
+    protected void fillFromToDates() {
+        from = inOut.inputDate("Enter date from " + format, format);
+        if (from == null) return;
+        to = inOut.inputDate("Enter date to " + format, format);
+        if (to == null) return;
+
+        if(from.isAfter(to)){
+            inOut.outputLine("Date from can't be after date to");
+            from = to = null;
+            return;
+        }
+    }
+
+    protected void saveResult() {
+        String res = inOut.inputString("Enter yes if you want to save changes");
+        if (res.equalsIgnoreCase("yes")){
+            ((Persistable) company).save(fileName);
+        }
     }
 }
