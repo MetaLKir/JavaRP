@@ -13,13 +13,13 @@ public class Printer extends Thread {
     @Override
     public void run() {
         int i = 0;
-        while (true){
+        while (true) {
             System.out.println(str.charAt(i));
             try {
                 sleep(1000);
             } catch (InterruptedException e) {
                 i++;
-                if (i >= str.length()) i = 0;
+                if (i >= len) i = 0;
             }
         }
     }
@@ -28,15 +28,15 @@ public class Printer extends Thread {
         Printer printer = new Printer("abcd");
         printer.start();
         Scanner scanner = new Scanner(System.in);
-        while(true){
+        while (true) {
             String input = scanner.nextLine();
-            if (input.equals("q")){
+            if (input.equalsIgnoreCase("q")) {
                 break;
-            }
-            else{
+            } else {
                 printer.interrupt();
             }
         }
+        scanner.close();
     }
 }
 //abcde => a a a a (interrupt) => b b b b b => c c...   q => end;

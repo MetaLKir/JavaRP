@@ -1,0 +1,62 @@
+===== Sprint 2 =====
+package "Sprint 2: выдача книг и базовые выборки" {
+
+package telran.library.entities {
+
+class PickRecord {
+
+  - long      isbn
+  - int       readerId
+  - LocalDate pickDate
+  - LocalDate returnDate
+  - int       delayDays
+  --
+  +  PickRecord()
+  + PickRecord(long isbn, int readerId, LocalDate pickDate)
+  + long getIsbn()
+  + int getReaderId()
+  + LocalDate getPickDate()
+  + LocalDate getReturnDate()
+  + void setReturnDate(LocalDate returnDate)
+  + int getDelayDays()
+  + void setDelayDays(int delayDays)
+  + boolean equals(Object o)       // сравнение по содержимому записи
+  + int hashCode()
+  + String toString()
+}
+
+
+}
+
+package telran.library.model {
+
+interface ILibrary {
+
+  .. Sprint2 (добавилось)
+    + BooksReturnCode pickBook(long isbn, int readerId, LocalDate pickDate)
+    + List<Book> getBooksPickedByReader(int readerId)
+    + List<Reader> getReadersPickedBook(long isbn)
+    + List<Book> getBooksAuthor(String authorName)
+    + List<PickRecord> getPickedRecordsAtDates(LocalDate from, LocalDate to)
+}
+
+
+}
+
+package telran.library.model {
+
+class LibraryMaps extends AbstractLibrary implements ILibrary, Persistable {
+
+  // Sprint2 — новые индексы выдач (private)
+  - Map<Integer, List<PickRecord>>  readersRecords // readerId → выдачи
+  - Map<Long, List<PickRecord>>     booksRecords   // isbn → выдачи
+  - Map<LocalDate, List<PickRecord>> records       // дата выдачи → выдачи
+
+
+  // Sprint2 (новое поведение)
+  + BooksReturnCode pickBook(long isbn, int readerId, LocalDate pickDate)
+  + List<Book> getBooksPickedByReader(int readerId)
+  + List<Reader> getReadersPickedBook(long isbn)
+  + List<Book> getBooksAuthor(String author)
+  + List<PickRecord> getPickedRecordsAtDates(LocalDate from, LocalDate to)
+}
