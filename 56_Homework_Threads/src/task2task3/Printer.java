@@ -25,15 +25,17 @@ public class Printer extends Thread {
             try {
                 sleep(10_000);
             } catch (InterruptedException e) {
+                int partToPrint = Math.min(portion, remain);
+
                 synchronized (mutex) {
-                    int partToPrint = Math.min(portion, remain);
                     for (int i = 0; i < partToPrint; i++) {
                         System.out.print(number);
                         remain--;
                     }
                     System.out.println();
-                    if (nextPrinter != null) nextPrinter.interrupt();
                 }
+
+                if (nextPrinter != null) nextPrinter.interrupt();
             }
         }
     }

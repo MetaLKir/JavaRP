@@ -10,5 +10,7 @@ public enum BooksReturnCode {
     PICK_PERIOD_GREATER_MAX,
     NO_READER,
     ALL_BOOKS_IN_USE,
-    WRONG_ISBN
+    WRONG_ISBN,
+    INVALID_BOOK,
+    INVALID_DRIVER
 }

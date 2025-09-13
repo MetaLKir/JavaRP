@@ -23,6 +23,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public BooksReturnCode addBookItem(Book book) {
+        if (book == null) return INVALID_BOOK;
         if (book.getPickPeriod() < minPickPeriod) return PICK_PERIOD_LESS_MIN;
         if (book.getPickPeriod() > maxPickPeriod) return PICK_PERIOD_GREATER_MAX;
         BooksReturnCode res =
@@ -33,6 +34,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public BooksReturnCode addReader(Reader reader) {
+        if (reader == null) return INVALID_DRIVER;
         boolean readerIsAbsent = readers.putIfAbsent(reader.getReaderId(), reader) == null;
         return readerIsAbsent ? OK : READER_EXISTS;
     }

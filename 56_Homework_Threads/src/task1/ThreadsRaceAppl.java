@@ -26,7 +26,7 @@ public class ThreadsRaceAppl {
     }
 
     private static void printRaceResults(Racer[] winners) {
-        Comparator<Racer> comp = (r1, r2) -> (int) (r1.getNanoTime() - r2.getNanoTime());
+        Comparator<Racer> comp = (r1, r2) -> Long.compare(r1.getNanoTime(), r2.getNanoTime());
         Racer[] winnersSorted = Arrays.copyOf(winners, winners.length);
         Arrays.sort(winnersSorted, comp);
 

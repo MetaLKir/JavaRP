@@ -30,7 +30,7 @@ public class Racer extends Thread {
         while (move < distance) {
             move += r.nextInt(STEP_MIN, STEP_MAX);
             move = Math.min(move, distance);
-            System.out.println(getName() + " distance: " + move + "/" + distance);
+//            System.out.println(getName() + " distance: " + move + "/" + distance);
         }
         nanoTime = System.nanoTime() - nanoTime;
     }
