@@ -1,0 +1,29 @@
+1. Update race such way that after finishing a race, results table should be displayed out in the following format (example data)
+ place thread-number time
+   1      3          256
+   2      1          254
+   3      2          254 
+
+2. Write Printer thread class that prints a determined amount of its number (e.g. 100) by the portions .
+Each portion shall contain a determined amount of the numbers (e.g. 10).
+During printing one portion none from other threads shall  print
+Output shall look like as follows
+111111111111
+22222222222
+33333333333
+……………….
+
+
+Implementation note: Apply sleep/interrupt synchronization
+
+
+3. Write PrinterController class with method main that configures and launches a determined number (e.g. 4) of the Printer threads. 
+
+
+Implementation hints;
+1. After launching all threads will sleep
+2. Main thread interrupts the first thread
+3. First thread prints a portion and interrupts second thread (it has the reference to the second thread)
+4. Second interrupts third and so on. The last thread interrupts the first one. Thus there will be the chain of threads that should be set by the PrinterController
+5. Threads finish after printing out all portions
+

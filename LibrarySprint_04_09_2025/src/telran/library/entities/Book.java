@@ -1,7 +1,6 @@
 package telran.library.entities;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public class Book implements Serializable {
     private long isbn;
@@ -81,5 +80,11 @@ public class Book implements Serializable {
                 ", amountInUse=" + getAmountInUse() +
                 ", pickPeriod=" + getPickPeriod() +
                 '}';
+    }
+
+    public static boolean checkIsbnLength(long isbn){
+        isbn = Math.abs(isbn);
+        int length = Long.toString(isbn).length();
+        return length == 10 || length == 13;
     }
 }

@@ -7,5 +7,8 @@ public enum BooksReturnCode {
     NO_BOOK_ITEM,                     // addBookExemplars: книги с ISBN нет
     WRONG_BOOK_PICK_PERIOD,            // addBookItem: pickPeriod вне [min,max]
     PICK_PERIOD_LESS_MIN,
-    PICK_PERIOD_GREATER_MAX
+    PICK_PERIOD_GREATER_MAX,
+    NO_READER,
+    ALL_BOOKS_IN_USE,
+    WRONG_ISBN
 }
