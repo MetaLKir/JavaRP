@@ -1,4 +1,4 @@
-package task2task3;
+package task2task3.mySolution;
 
 public class PrinterControllerCompact {
     private static int threadsAmount = 5;

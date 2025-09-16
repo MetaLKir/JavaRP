@@ -18,7 +18,8 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     private Map<Integer, List<PickRecord>> readersRecords = new HashMap<>();    // readerId → выдачи
     private Map<Long, List<PickRecord>> booksRecords = new HashMap<>();         // isbn → выдачи
-    private Map<LocalDate, List<PickRecord>> records = new TreeMap<>();         // дата выдачи → выдачи
+    private NavigableMap<LocalDate, List<PickRecord>> records = new TreeMap<>();         // дата выдачи → выдачи
+    private Map<String, List<Book>> authorBooks = new HashMap();
 
 
     @Override
@@ -26,10 +27,19 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         if (book == null) return INVALID_BOOK;
         if (book.getPickPeriod() < minPickPeriod) return PICK_PERIOD_LESS_MIN;
         if (book.getPickPeriod() > maxPickPeriod) return PICK_PERIOD_GREATER_MAX;
-        BooksReturnCode res =
-                books.putIfAbsent(book.getIsbn(), book) == null ?
-                        OK : BOOK_ITEM_EXISTS;
-        return res;
+//        BooksReturnCode res =
+//                books.putIfAbsent(book.getIsbn(), book) == null ?
+//                        OK : BOOK_ITEM_EXISTS;
+        if (books.putIfAbsent(book.getIsbn(), book) != null) return BOOK_ITEM_EXISTS;
+        addAuthorBooks(book);
+        return OK;
+    }
+
+    private void addAuthorBooks(Book book) {
+        String key = book.getAuthor();
+        List<Book> list = authorBooks.computeIfAbsent(key, k -> new ArrayList<>());
+        boolean exists = list.stream().anyMatch(b -> b.getIsbn() == book.getIsbn());
+        if (!exists) list.add(book);
     }
 
     @Override
@@ -59,22 +69,32 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public BooksReturnCode pickBook(long isbn, int readerId, LocalDate pickDate) {
+//        if(!Book.checkIsbnLength(isbn)) return WRONG_ISBN;
+        Book book = getBookItem(isbn);
+        if (book == null || book.getAmount() < 0) return NO_BOOK_ITEM;
+        if (book.getAmount() <= book.getAmountInUse()) return NO_BOOK_EXEMPLARS;
+
         Reader reader = getReader(readerId);
         if (reader == null) return NO_READER;
 
-//        if(!Book.checkIsbnLength(isbn)) return WRONG_ISBN;
-
-        Book book = getBookItem(isbn);
-        if (book == null) return NO_BOOK_ITEM;
-        if (book.getAmountInUse() == book.getAmount()) return ALL_BOOKS_IN_USE;
+        // do not give the book if the same book is already picked by this reader (1 exemplar in one hands at a time)
+        List<PickRecord> pickRecords = readersRecords.get(readerId);
+        if (pickRecords != null
+                && pickRecords.stream().anyMatch(r -> r.getIsbn() == isbn
+                && r.getReturnDate() == null))
+            return READER_READS_IT;
 
         PickRecord record = new PickRecord(isbn, readerId, pickDate);
-        readersRecords.computeIfAbsent(record.getReaderId(), r -> new ArrayList<>()).add(record);
-        booksRecords.computeIfAbsent(record.getIsbn(), i -> new ArrayList<>()).add(record);
-        records.computeIfAbsent(record.getPickDate(), d -> new ArrayList<>()).add(record);
-
         book.setAmountInUse(book.getAmountInUse() + 1);
+        addToMap(booksRecords, record.getIsbn(), record);
+        addToMap(readersRecords, record.getReaderId(), record);
+        addToMap(records, record.getPickDate(), record);
+
         return OK;
+    }
+
+    private <K, V> void addToMap(Map<K, List<V>> map, K key, V value) {
+        map.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
     @Override
@@ -100,17 +120,19 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         if (authorName == null || authorName.isBlank())
             return new ArrayList<>();
 
-        return books.values().stream().
-                filter(b -> b.getAuthor().equalsIgnoreCase(authorName.trim())).
-                toList();
+        List<Book> list = authorBooks.getOrDefault(authorName, new ArrayList<>());
+        return list.stream().
+                filter(b -> b.getAmount() < b.getAmountInUse()). // only available books
+                        toList();
     }
 
     @Override
     public List<PickRecord> getPickedRecordsAtDates(LocalDate from, LocalDate to) {
-        Map<LocalDate, List<PickRecord>> recordsInRange = ((TreeMap<LocalDate, List<PickRecord>>) records).subMap(from, to);
-        return recordsInRange.values().stream().
-                flatMap(Collection::stream).
-                toList();
+        Collection<List<PickRecord>> colRecords = records.subMap(from, to).values();
+        return colRecords == null ? new ArrayList<>() :
+                colRecords.stream().
+                        flatMap(List::stream).
+                        toList();
     }
 
     @Override

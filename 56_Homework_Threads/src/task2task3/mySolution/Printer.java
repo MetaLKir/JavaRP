@@ -1,4 +1,4 @@
-package task2task3;
+package task2task3.mySolution;
 
 public class Printer extends Thread {
     private int number;

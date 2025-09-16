@@ -52,8 +52,8 @@ public class PickRecord implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        PickRecord that = (PickRecord) o;
-        return isbn == that.isbn && readerId == that.readerId && delayDays == that.delayDays && Objects.equals(pickDate, that.pickDate) && Objects.equals(returnDate, that.returnDate);
+        PickRecord record = (PickRecord) o;
+        return isbn == record.isbn && readerId == record.readerId && Objects.equals(pickDate, record.pickDate);
     }
 
     @Override
@@ -61,8 +61,6 @@ public class PickRecord implements Serializable {
         int result = Long.hashCode(isbn);
         result = 31 * result + readerId;
         result = 31 * result + Objects.hashCode(pickDate);
-        result = 31 * result + Objects.hashCode(returnDate);
-        result = 31 * result + delayDays;
         return result;
     }
 

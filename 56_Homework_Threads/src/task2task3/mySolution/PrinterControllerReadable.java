@@ -1,4 +1,4 @@
-package task2task3;
+package task2task3.mySolution;
 
 public class PrinterControllerReadable {
     private static int threadsAmount = 5;
@@ -12,10 +12,9 @@ public class PrinterControllerReadable {
 
         // make chain refs to next printer
         for (int i = 0; i < threadsAmount; i++) {
-            Printer next  = i < threadsAmount - 1 ? printers[i + 1] : null;
+            Printer next  = i < threadsAmount - 1 ? printers[i + 1] : printers[0];
             printers[i].setNextPrinter(next);
         }
-        printers[threadsAmount - 1].setNextPrinter(printers[0]);
 
         // start threads
         for (int i = 0; i < threadsAmount; i++) {
