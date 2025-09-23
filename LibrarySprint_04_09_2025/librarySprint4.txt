@@ -1,0 +1,41 @@
+===== Sprint 4 =====
+package "Sprint 4: отчёты и статистика" {
+
+  package telran.library.entities {
+
+    class ReaderDelay {
+      
+     - Reader reader
+     - int    delay
+      --
+      + ReaderDelay()
+      + ReaderDelay(Reader reader, int delay)
+      + Reader getReader()
+      + int getDelay()
+      + boolean equals(Object o)
+      + int hashCode()
+      + String toString()
+    }
+  }
+
+  package telran.library.model {
+
+    interface ILibrary {
+      .. Sprint 4 (добавилось)
+      + List<ReaderDelay> getReadersDelayingBooks(LocalDate currentDate)
+      + List<ReaderDelay> getReadersDelayedBooks()
+      + List<Book>        getMostPopularBooks(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge)
+      + List<String>      getMostPopularAuthors()
+      + List<Reader>      getMostActiveReaders(LocalDate fromDate, LocalDate toDate)
+    }
+
+    class LibraryMaps extends AbstractLibrary implements ILibrary, Persistable {
+   
+      + List<ReaderDelay> getReadersDelayingBooks(LocalDate currentDate)
+      + List<ReaderDelay> getReadersDelayedBooks()
+      + List<Book>        getMostPopularBooks(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge)
+      + List<String>      getMostPopularAuthors()
+      + List<Reader>      getMostActiveReaders(LocalDate fromDate, LocalDate toDate)
+    }
+  }
+}

@@ -10,7 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LibraryMaps extends AbstractLibrary implements Persistable {
     private Map<Long, Book> books = new HashMap<>();            // key isbn
@@ -133,6 +135,143 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
                 colRecords.stream().
                         flatMap(List::stream).
                         toList();
+    }
+
+    @Override
+    public RemovedBookData removeBook(long isbn) {
+//        if (!Book.checkIsbnLength(isbn)) return null;
+        Book bookToRemove = getBookItem(isbn);
+        if (bookToRemove == null) return null;
+
+        books.remove(isbn);
+        String author = bookToRemove.getAuthor();
+        authorBooks.get(author).remove(bookToRemove);
+
+        List<PickRecord> bookToRemoveRecords = booksRecords.getOrDefault(isbn, new ArrayList<>());
+        RemovedBookData res = new RemovedBookData(bookToRemove, bookToRemoveRecords);
+        if (bookToRemoveRecords.isEmpty()) return res;
+
+        booksRecords.remove(isbn);
+        bookToRemoveRecords.forEach(r -> {
+            List<PickRecord> readerRecs = readersRecords.get(r.getReaderId());
+            if (readerRecs != null) readerRecs.remove(r);
+            List<PickRecord> dateRecs = records.get(r.getPickDate());
+            if (dateRecs != null) dateRecs.remove(r);
+        });
+        return res;
+    }
+
+    @Override
+    public List<RemovedBookData> removeAuthor(String author) {
+        return authorBooks.get(author).stream().map(b -> removeBook(b.getIsbn())).toList();
+    }
+
+    @Override
+    public RemovedBookData returnBook(long isbn, int readerId, LocalDate returnDate) {
+        /*
+        Какой смысл возвращать RemovedBookData?
+        Нет ни отслеживания повреждений, ни флага на удаление.
+         */
+        PickRecord pickRec = getPickRecord(isbn, readerId);
+        if (pickRec == null) return new RemovedBookData(null, null);
+
+        Book returnedBook = getBookItem(isbn);
+        returnedBook.setAmountInUse(returnedBook.getAmountInUse() - 1);
+
+        pickRec.setReturnDate(returnDate);
+        int pickDays = (int) ChronoUnit.DAYS.between(pickRec.getPickDate(), returnDate);
+        int delay = pickDays - returnedBook.getPickPeriod();
+        pickRec.setDelayDays(Math.max(delay, 0));
+
+        return new RemovedBookData(returnedBook, null);
+    }
+
+    @Override
+    public List<ReaderDelay> getReadersDelayingBooks(LocalDate currentDate) {
+        /*  Вернуть ReaderDelay с читателями,
+            которые книгу ещё не сдали, но уже точно её задержали?
+         */
+        return readersRecords.values().stream().
+                flatMap(Collection::stream).
+                filter(r -> {
+                    int bookPickPeriod = books.get(r.getIsbn()).getPickPeriod();
+                    int period = (int) ChronoUnit.DAYS.between(r.getPickDate(), currentDate);
+                    return period > bookPickPeriod;
+                }).
+                map(r -> new ReaderDelay(readers.get(r.getReaderId()), r.getDelayDays())).
+                toList();
+    }
+
+    @Override
+    public List<ReaderDelay> getReadersDelayedBooks() {
+        // Вернуть все случаи, когда книга задерживалась читателем?
+        return readersRecords.values().stream().
+                flatMap(Collection::stream).
+                filter(r -> r.getDelayDays() > 0).
+                map(r -> new ReaderDelay(readers.get(r.getReaderId()), r.getDelayDays())).
+                toList();
+    }
+
+    @Override
+    public List<Book> getMostPopularBooks(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge) {
+        List<PickRecord> recordsFromTo = getPickedRecordsAtDates(fromDate, toDate);
+        if (recordsFromTo.isEmpty()) return new ArrayList<>();
+        // isbn, count
+        Map<Long, Long> booksPopularity = recordsFromTo.stream().
+                filter(r -> {
+                    Reader reader = readers.get(r.getReaderId());
+                    int readerAge = (int) ChronoUnit.YEARS.between(reader.getBirthDay(), LocalDate.now());
+                    return readerAge >= fromAge && readerAge < toAge;
+                }).
+                collect(Collectors.groupingBy(PickRecord::getIsbn, Collectors.counting()));
+        if (booksPopularity.isEmpty()) return new ArrayList<>();
+
+        List<Book> res = new ArrayList<>();
+        long highestPopularity = booksPopularity.values().stream().mapToLong(v -> v).max().getAsLong();
+        booksPopularity.forEach((k, v) -> {
+            if (v == highestPopularity) res.add(books.get(k));
+        });
+        return res;
+    }
+
+    @Override
+    public List<String> getMostPopularAuthors() {
+        if (booksRecords.isEmpty()) return new ArrayList<>();
+        // isbn, count
+        Map<String, Long> authorsPopularity = booksRecords.values().stream().
+                flatMap(Collection::stream).
+                collect(Collectors.groupingBy(r -> books.get(r.getIsbn()).getAuthor(), Collectors.counting()));
+
+        List<String> res = new ArrayList<>();
+        long highestPopularity = authorsPopularity.values().stream().mapToLong(v -> v).max().getAsLong();
+        authorsPopularity.forEach((k, v) -> {
+            if (v == highestPopularity) res.add(k);
+        });
+        return res;
+    }
+
+    @Override
+    public List<Reader> getMostActiveReaders(LocalDate fromDate, LocalDate toDate) {
+        List<PickRecord> recordsFromTo = getPickedRecordsAtDates(fromDate, toDate);
+        if (recordsFromTo.isEmpty()) return new ArrayList<>();
+        // readerId, count
+        Map<Integer, Long> readersByActivity = recordsFromTo.stream().
+                collect(Collectors.groupingBy(PickRecord::getReaderId, Collectors.counting()));
+
+        List<Reader> res = new ArrayList<>();
+        long highestActivity = readersByActivity.values().stream().mapToLong(v -> v).max().getAsLong();
+        readersByActivity.forEach((k, v) -> {
+            if (v == highestActivity) res.add(readers.get(k));
+        });
+        return res;
+    }
+
+    private PickRecord getPickRecord(long isbn, int readerId) {
+        List<PickRecord> readerRecs = readersRecords.get(readerId);
+        if (readerRecs == null) return null;
+        return readerRecs.stream().
+                filter(r -> r.getIsbn() == isbn && r.getReturnDate() == null).
+                findFirst().orElse(null);
     }
 
     @Override

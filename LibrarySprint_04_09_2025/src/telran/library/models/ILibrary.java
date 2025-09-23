@@ -29,4 +29,22 @@ public interface ILibrary extends Serializable {
     List<Book> getBooksAuthor(String authorName);
 
     List<PickRecord> getPickedRecordsAtDates(LocalDate from, LocalDate to);
+
+    // sprint 3
+    RemovedBookData removeBook(long isbn);
+
+    List<RemovedBookData> removeAuthor(String author);
+
+    RemovedBookData returnBook(long isbn, int readerId, LocalDate returnDate);
+
+    // sprint 4
+    List<ReaderDelay> getReadersDelayingBooks(LocalDate currentDate);
+
+    List<ReaderDelay> getReadersDelayedBooks();
+
+    List<Book> getMostPopularBooks(LocalDate fromDate, LocalDate toDate, int fromAge, int toAge);
+
+    List<String> getMostPopularAuthors();
+
+    List<Reader> getMostActiveReaders(LocalDate fromDate, LocalDate toDate);
 }

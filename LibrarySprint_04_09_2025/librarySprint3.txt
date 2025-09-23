@@ -1,0 +1,45 @@
+===== Sprint 3 =====
+package "Sprint 3: возврат и удаление" {
+
+  package telran.library.entities {
+
+    
+    class RemovedBookData {
+      - Book               book
+      - List<PickRecord>   records
+      --
+      + RemovedBookData()
+      + RemovedBookData(Book book, List<PickRecord> records)
+      + Book getBook()
+      + List<PickRecord> getRecords()
+      + String toString()
+      // equals/hashCode по всем полям
+    }
+  }
+
+  package telran.library.model {
+
+    interface ILibrary {
+      .. Sprint3 (добавилось)
+        + RemovedBookData removeBook(long isbn)
+        + List<RemovedBookData> removeAuthor(String author)
+        + RemovedBookData returnBook(long isbn, int readerId, LocalDate returnDate)
+    }
+  }
+
+  package telran.library.model {
+
+   
+    class LibraryMaps extends AbstractLibrary implements ILibrary, Persistable {
+
+
+      --
+
+      // ===== Sprint3: публичные методы интерфейса  =====
+      + RemovedBookData removeBook(long isbn)
+      + List<RemovedBookData> removeAuthor(String author)
+      + RemovedBookData returnBook(long isbn, int readerId, LocalDate returnDate)
+)
+    }
+  }
+}
