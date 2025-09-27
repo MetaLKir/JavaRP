@@ -12,6 +12,6 @@ public enum BooksReturnCode {
     NO_BOOK_EXEMPLARS,
     WRONG_ISBN,
     INVALID_BOOK,
-    INVALID_DRIVER,
+    INVALID_READER,
     READER_READS_IT
 }

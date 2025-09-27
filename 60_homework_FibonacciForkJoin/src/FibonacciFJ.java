@@ -10,10 +10,7 @@ public class FibonacciFJ extends RecursiveTask<Long> {
 
     @Override
     protected Long compute() {
-        if (position == 0)
-            return 0L;
-        else if (position == 1)
-            return 1L;
+        if (position <= 1) return (long) position;
         else {
             FibonacciFJ prevNum = new FibonacciFJ(position - 1);
             prevNum.fork();

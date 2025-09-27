@@ -21,7 +21,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
     private Map<Integer, List<PickRecord>> readersRecords = new HashMap<>();    // readerId → выдачи
     private Map<Long, List<PickRecord>> booksRecords = new HashMap<>();         // isbn → выдачи
     private NavigableMap<LocalDate, List<PickRecord>> records = new TreeMap<>();         // дата выдачи → выдачи
-    private Map<String, List<Book>> authorBooks = new HashMap();
+    private Map<String, List<Book>> authorBooks = new HashMap<>();
 
 
     @Override
@@ -46,7 +46,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public BooksReturnCode addReader(Reader reader) {
-        if (reader == null) return INVALID_DRIVER;
+        if (reader == null) return INVALID_READER;
         boolean readerIsAbsent = readers.putIfAbsent(reader.getReaderId(), reader) == null;
         return readerIsAbsent ? OK : READER_EXISTS;
     }
@@ -124,7 +124,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
         List<Book> list = authorBooks.getOrDefault(authorName, new ArrayList<>());
         return list.stream().
-                filter(b -> b.getAmount() < b.getAmountInUse()). // only available books
+                filter(b -> b.getAmount() > b.getAmountInUse()). // only available books
                         toList();
     }
 
@@ -220,7 +220,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         Map<Long, Long> booksPopularity = recordsFromTo.stream().
                 filter(r -> {
                     Reader reader = readers.get(r.getReaderId());
-                    int readerAge = (int) ChronoUnit.YEARS.between(reader.getBirthDay(), LocalDate.now());
+                    int readerAge = (int) ChronoUnit.YEARS.between(reader.getBirthDay(), r.getPickDate());
                     return readerAge >= fromAge && readerAge < toAge;
                 }).
                 collect(Collectors.groupingBy(PickRecord::getIsbn, Collectors.counting()));
