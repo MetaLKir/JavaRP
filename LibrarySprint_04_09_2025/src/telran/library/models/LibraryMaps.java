@@ -55,7 +55,8 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
     public BooksReturnCode addBookExemplars(long isbn, int amount) {
         Book book = getBookItem(isbn);
         if (book == null) return NO_BOOK_ITEM;
-        book.setAmount(book.getAmount() + amount);
+        int newAmount = book.getAmount() + amount;
+        book.setAmount(Math.max(newAmount, 0));
         return OK;
     }
 
@@ -163,7 +164,13 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public List<RemovedBookData> removeAuthor(String author) {
-        return authorBooks.get(author).stream().map(b -> removeBook(b.getIsbn())).toList();
+        List<Book> bookToRemove = authorBooks.get(author).stream().
+                filter(Objects::nonNull).
+                toList();
+
+        return bookToRemove.stream().
+                map(b -> removeBook(b.getIsbn())).
+                toList();
     }
 
     @Override
@@ -196,9 +203,14 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
                 filter(r -> {
                     int bookPickPeriod = books.get(r.getIsbn()).getPickPeriod();
                     int period = (int) ChronoUnit.DAYS.between(r.getPickDate(), currentDate);
-                    return period > bookPickPeriod;
+                    return period > bookPickPeriod && r.getReturnDate() == null;
                 }).
-                map(r -> new ReaderDelay(readers.get(r.getReaderId()), r.getDelayDays())).
+                map(r -> {
+                    int bookPickPeriod = books.get(r.getIsbn()).getPickPeriod();
+                    int period = (int) ChronoUnit.DAYS.between(r.getPickDate(), currentDate);
+                    int delay = period - bookPickPeriod;
+                    return new ReaderDelay(readers.get(r.getReaderId()), delay);
+                }).
                 toList();
     }
 

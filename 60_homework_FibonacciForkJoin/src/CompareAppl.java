@@ -10,6 +10,7 @@ public class CompareAppl {
         end = System.currentTimeMillis();
         System.out.println("Default, result = " + res + ", time (ms) = " + (end - start));
 
+
         start = System.currentTimeMillis();
         res = FibonacciStream.calculateNumber(numberPosition);
         end = System.currentTimeMillis();
@@ -19,6 +20,11 @@ public class CompareAppl {
         res = ForkJoinPool.commonPool().invoke(new FibonacciFJ(numberPosition));
         end = System.currentTimeMillis();
         System.out.println("Fork Join, result = " + res + ", time (ms) = " + (end - start));
+
+        start = System.currentTimeMillis();
+        res = ForkJoinPool.commonPool().invoke(new FibonacciFJOptimized(numberPosition, numberPosition / 4));
+        end = System.currentTimeMillis();
+        System.out.println("Fork Join (Optimized), result = " + res + ", time (ms) = " + (end - start));
 
         start = System.currentTimeMillis();
         res = FibonacciRecursion.calculateNumber(numberPosition);
