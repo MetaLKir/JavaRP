@@ -51,6 +51,9 @@ class LibraryTestPickBooks {
 
         assertEquals(READER_READS_IT, library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), LocalDate.now()));
         assertEquals(1, books[0].getAmountInUse());
+
+        books[1].setRemoval(true);
+        assertEquals(BOOK_SET_FOR_REMOVAL, library.pickBook(books[1].getIsbn(), readers[0].getReaderId(), LocalDate.now()));
     }
 
     @Test

@@ -16,6 +16,7 @@ class LibraryTestReturnRemoveBook {
     private ILibrary library;
     private Book[] books;
     private Reader[] readers;
+    private final LocalDate PICK_DATE = LocalDate.of(2021, 1, 1);
 
     @BeforeEach
     void setUp() {
@@ -44,16 +45,12 @@ class LibraryTestReturnRemoveBook {
 
     @Test
     void removeBook_bookInUse() {
-        library.pickBook(books[1].getIsbn(), readers[1].getReaderId(), LocalDate.of(2021, 1, 1));
-        library.pickBook(books[1].getIsbn(), readers[2].getReaderId(), LocalDate.of(2022, 2, 2));
-        List<PickRecord> recordsForExpected = library.getPickedRecordsAtDates(LocalDate.of(2020, 1, 1), LocalDate.of(2023, 1, 1));
-        RemovedBookData expected = new RemovedBookData(books[1], recordsForExpected);
+        library.pickBook(books[1].getIsbn(), readers[1].getReaderId(), PICK_DATE);
+        RemovedBookData expected = new RemovedBookData(books[1], null);
         RemovedBookData actual = library.removeBook(books[1].getIsbn());
         assertEquals(expected, actual);
-        // no book and records after removal
-        assertNull(library.getBookItem(books[1].getIsbn()));
-        List<PickRecord> recordsAfterRemove = library.getPickedRecordsAtDates(LocalDate.of(2020, 1, 1), LocalDate.of(2023, 1, 1));
-        assertTrue(recordsAfterRemove.isEmpty());
+        assertEquals(books[1], library.getBookItem(books[1].getIsbn())); // book is still there
+        assertTrue(books[1].isRemoval());
     }
 
     @Test
@@ -67,6 +64,7 @@ class LibraryTestReturnRemoveBook {
         RemovedBookData expected = new RemovedBookData(books[1], recordsForExpected);
         RemovedBookData actual = library.removeBook(books[1].getIsbn());
         assertEquals(expected, actual);
+
         // no book and records after removal
         assertNull(library.getBookItem(books[1].getIsbn()));
         List<PickRecord> recordsAfterRemove = library.getPickedRecordsAtDates(LocalDate.of(2020, 1, 1), LocalDate.of(2023, 1, 1));
@@ -76,69 +74,71 @@ class LibraryTestReturnRemoveBook {
 
     @Test
     void removeAuthor() {
-        LocalDate pickDate1 = LocalDate.of(2021, 1, 1);
-        LocalDate pickDate2 = LocalDate.of(2023, 3, 3);
+        library.pickBook(books[1].getIsbn(), readers[0].getReaderId(), PICK_DATE);
+        library.returnBook(books[1].getIsbn(), readers[0].getReaderId(), PICK_DATE.plusDays(10));
+        List<PickRecord> pickRecords = library.getPickedRecordsAtDates(PICK_DATE, PICK_DATE.plusYears(1));
 
-        library.pickBook(books[1].getIsbn(), readers[0].getReaderId(), pickDate1);
-        List<PickRecord> pickRecords1 = library.getPickedRecordsAtDates(pickDate1, pickDate1.plusYears(1));
+        library.pickBook(books[2].getIsbn(), readers[0].getReaderId(), PICK_DATE);
 
-        library.pickBook(books[2].getIsbn(), readers[0].getReaderId(), pickDate2);
-        library.returnBook(books[2].getIsbn(), readers[0].getReaderId(), pickDate2.plusDays(3));
-        List<PickRecord> pickRecords2 = library.getPickedRecordsAtDates(pickDate2, pickDate2.plusYears(1));
 
         List<RemovedBookData> expected = List.of(
-                new RemovedBookData(books[0], new ArrayList<>()),
-                new RemovedBookData(books[1], pickRecords1),
-                new RemovedBookData(books[2], pickRecords2)
+                new RemovedBookData(books[0], new ArrayList<>()), // no picks
+                new RemovedBookData(books[1], pickRecords),      // picked and returned
+                new RemovedBookData(books[2], null)       // book still in use
         );
         List<RemovedBookData> actual = library.removeAuthor("author0");
         assertEquals(expected, actual);
 
-        assertTrue(library.getBooksAuthor("author0").isEmpty());
         assertNull(library.getBookItem(books[0].getIsbn()));
         assertNull(library.getBookItem(books[1].getIsbn()));
-        assertNull(library.getBookItem(books[2].getIsbn()));
+        assertEquals(books[2], library.getBookItem(books[2].getIsbn()));
 
+        List<Book> actualBooksLeft = library.getBooksAuthor("author0");
+        List<Book> expectedBooksLeft = List.of(books[2]);
+        assertEquals(expectedBooksLeft, actualBooksLeft);
     }
 
     @Test
     void returnBook_withoutDelay() {
-        LocalDate pickDate = LocalDate.of(2021, 1, 1);
-        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate);
+        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE);
 
         RemovedBookData expected = new RemovedBookData(books[0], null);
-        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate.plusDays(10));
+        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE.plusDays(10));
         assertEquals(expected, actual);
         assertEquals(10, books[0].getAmount());
         assertEquals(0, books[0].getAmountInUse());
         // check delay
-        List<PickRecord> records = library.getPickedRecordsAtDates(pickDate, pickDate.plusYears(1));
+        List<PickRecord> records = library.getPickedRecordsAtDates(PICK_DATE, PICK_DATE.plusYears(1));
         assertEquals(0, records.getFirst().getDelayDays());
     }
 
     @Test
     void returnBook_withDelay() {
-        LocalDate pickDate = LocalDate.of(2021, 1, 1);
-        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate);
+        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE);
 
         RemovedBookData expected = new RemovedBookData(books[0], null);
-        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate.plusDays(100));
+        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE.plusDays(100));
         assertEquals(expected, actual);
         assertEquals(10, books[0].getAmount());
         assertEquals(0, books[0].getAmountInUse());
         // check delay
-        List<PickRecord> records = library.getPickedRecordsAtDates(pickDate, pickDate.plusYears(1));
+        List<PickRecord> records = library.getPickedRecordsAtDates(PICK_DATE, PICK_DATE.plusYears(1));
         assertEquals(70, records.getFirst().getDelayDays());
     }
 
     @Test
-    void returnBook_bookRemovedBeforeReturn() {
-        LocalDate pickDate = LocalDate.of(2021, 1, 1);
-        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate);
+    void returnBook_bookForRemoval() {
+        library.pickBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE);
+        library.pickBook(books[0].getIsbn(), readers[1].getReaderId(), PICK_DATE);
         library.removeBook(books[0].getIsbn());
 
-        RemovedBookData expected = new RemovedBookData(null, null);
-        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), pickDate.plusDays(10));
+        RemovedBookData expected = new RemovedBookData(books[0], null);
+        RemovedBookData actual = library.returnBook(books[0].getIsbn(), readers[0].getReaderId(), PICK_DATE.plusDays(10));
+        assertEquals(expected, actual);
+
+        List<PickRecord> records = library.getPickedRecordsAtDates(PICK_DATE, PICK_DATE.plusYears(1));
+        expected = new RemovedBookData(books[0], records);
+        actual = library.returnBook(books[0].getIsbn(), readers[1].getReaderId(), PICK_DATE.plusDays(10));
         assertEquals(expected, actual);
     }
 }

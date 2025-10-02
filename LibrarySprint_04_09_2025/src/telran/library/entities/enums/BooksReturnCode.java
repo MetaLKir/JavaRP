@@ -13,5 +13,6 @@ public enum BooksReturnCode {
     WRONG_ISBN,
     INVALID_BOOK,
     INVALID_READER,
-    READER_READS_IT
+    READER_READS_IT,
+    BOOK_SET_FOR_REMOVAL
 }

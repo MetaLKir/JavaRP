@@ -9,6 +9,7 @@ public class Book implements Serializable {
     private int amount;
     private int amountInUse;
     private int pickPeriod;
+    private boolean removal = false;
 
     public Book() {
     }
@@ -45,6 +46,10 @@ public class Book implements Serializable {
         return pickPeriod;
     }
 
+    public boolean isRemoval() {
+        return removal;
+    }
+
     public void setAmount(int amount) {
         if (amount >= 0) this.amount = amount;
     }
@@ -55,6 +60,10 @@ public class Book implements Serializable {
 
     public void setPickPeriod(int pickPeriod) {
         if (pickPeriod > 0) this.pickPeriod = pickPeriod;
+    }
+
+    public void setRemoval(boolean removal) {
+        this.removal = removal;
     }
 
     @Override

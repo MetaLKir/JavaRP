@@ -76,6 +76,7 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         Book book = getBookItem(isbn);
         if (book == null || book.getAmount() < 0) return NO_BOOK_ITEM;
         if (book.getAmount() <= book.getAmountInUse()) return NO_BOOK_EXEMPLARS;
+        if (book.isRemoval()) return BOOK_SET_FOR_REMOVAL;
 
         Reader reader = getReader(readerId);
         if (reader == null) return NO_READER;
@@ -144,8 +145,15 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         Book bookToRemove = getBookItem(isbn);
         if (bookToRemove == null) return null;
 
-        books.remove(isbn);
+        bookToRemove.setRemoval(true);
+        boolean bookInUse = bookToRemove.getAmountInUse() > 0;
+        return bookInUse ? new RemovedBookData(bookToRemove, null) : actualBookRemoval(bookToRemove);
+    }
+
+    private RemovedBookData actualBookRemoval(Book bookToRemove){
+        long isbn = bookToRemove.getIsbn();
         String author = bookToRemove.getAuthor();
+        books.remove(isbn);
         authorBooks.get(author).remove(bookToRemove);
 
         List<PickRecord> bookToRemoveRecords = booksRecords.getOrDefault(isbn, new ArrayList<>());
@@ -175,10 +183,6 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
 
     @Override
     public RemovedBookData returnBook(long isbn, int readerId, LocalDate returnDate) {
-        /*
-        Какой смысл возвращать RemovedBookData?
-        Нет ни отслеживания повреждений, ни флага на удаление.
-         */
         PickRecord pickRec = getPickRecord(isbn, readerId);
         if (pickRec == null) return new RemovedBookData(null, null);
 
@@ -189,6 +193,8 @@ public class LibraryMaps extends AbstractLibrary implements Persistable {
         int pickDays = (int) ChronoUnit.DAYS.between(pickRec.getPickDate(), returnDate);
         int delay = pickDays - returnedBook.getPickPeriod();
         pickRec.setDelayDays(Math.max(delay, 0));
+
+        if (returnedBook.isRemoval()) return removeBook(isbn);
 
         return new RemovedBookData(returnedBook, null);
     }
