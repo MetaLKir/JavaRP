@@ -140,5 +140,8 @@ class LibraryTestReturnRemoveBook {
         expected = new RemovedBookData(books[0], records);
         actual = library.returnBook(books[0].getIsbn(), readers[1].getReaderId(), PICK_DATE.plusDays(10));
         assertEquals(expected, actual);
+
+        assertNull(library.getBookItem(books[0].getIsbn()));
+        assertTrue(library.getPickedRecordsAtDates(PICK_DATE, PICK_DATE.plusYears(1)).isEmpty());
     }
 }
